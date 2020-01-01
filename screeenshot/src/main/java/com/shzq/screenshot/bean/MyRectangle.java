@@ -20,7 +20,7 @@ public class MyRectangle {
 
     }
 
-    public MyRectangle(MyRectangle source){
+    public MyRectangle(MyRectangle source) {
         leftTop.setLocation(source.leftTop);
         leftBottom.setLocation(source.leftBottom);
         rightTop.setLocation(source.rightTop);
@@ -180,10 +180,11 @@ public class MyRectangle {
 
     /**
      * 递增移动，x在x轴向右移动为正数，y在y轴向下移动为正数
+     *
      * @param x x轴移动的距离
      * @param y y轴移动的距离
      */
-    public void incrementMove(int x, int y){
+    public void incrementMove(int x, int y) {
         incrementStartX(x);
         incrementEndX(x);
         incrementStartY(y);

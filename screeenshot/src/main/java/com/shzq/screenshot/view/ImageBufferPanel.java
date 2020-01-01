@@ -1,7 +1,6 @@
 package com.shzq.screenshot.view;
 
 import com.shzq.screenshot.bean.MyRectangle;
-import com.shzq.screenshot.enums.States;
 import com.shzq.screenshot.listener.Painter;
 
 import javax.swing.*;

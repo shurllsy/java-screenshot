@@ -32,6 +32,7 @@ public abstract class Painter implements MouseListener, MouseMotionListener {
 
     /**
      * 公共，双击保存
+     *
      * @param e MouseEvent
      */
     @Override
@@ -49,6 +50,7 @@ public abstract class Painter implements MouseListener, MouseMotionListener {
 
     /**
      * 公共，右键退出
+     *
      * @param e MouseEvent
      */
     @Override

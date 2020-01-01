@@ -19,6 +19,7 @@ public class RectanglePainter implements MouseListener, MouseMotionListener {
     Graphics g;
     private int preX = -1;
     private int preY = -1;
+
     public RectanglePainter(JPanel jPanel, Graphics g) {
         this.jPanel = jPanel;
         this.g = g;

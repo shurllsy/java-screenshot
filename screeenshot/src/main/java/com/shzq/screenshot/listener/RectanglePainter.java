@@ -53,11 +53,11 @@ public class RectanglePainter extends Painter {
         BufferedImage ipImg = imagePanel.appliedImage;
         bufferedImage = PainterUtil.createCompatibleImage(ipImg.getWidth(), ipImg.getHeight(), ipImg.getType());
         Graphics bufferedImgGraphics = bufferedImage.getGraphics();
-        bufferedImgGraphics.drawImage(ipImg, 0,0, null);
+        bufferedImgGraphics.drawImage(ipImg, 0, 0, null);
 
         BufferedImage selectAreaImage = imagePanel.selectAreaImage;
         Graphics selectAreaGraphics = selectAreaImage.createGraphics();
-        selectAreaGraphics.drawImage(imagePanel.selectAreaImageCache, 0,0, null);
+        selectAreaGraphics.drawImage(imagePanel.selectAreaImageCache, 0, 0, null);
 
         selectAreaGraphics.setColor(Color.red);
         PainterUtil.drawRectangle(rectangle, selectAreaGraphics);
@@ -67,7 +67,7 @@ public class RectanglePainter extends Painter {
         MyRectangle fixed = new MyRectangle(selectedRectangle);
         fixed.incrementStartX(1);
         fixed.incrementStartY(1);
-        BufferedImage subImage = selectAreaImage.getSubimage(1, 1, selectAreaImage.getWidth()-1, selectAreaImage.getHeight()-1);
+        BufferedImage subImage = selectAreaImage.getSubimage(1, 1, selectAreaImage.getWidth() - 1, selectAreaImage.getHeight() - 1);
 
         PainterUtil.drawImage(fixed, subImage, bufferedImgGraphics);
 

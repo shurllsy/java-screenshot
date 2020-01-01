@@ -26,8 +26,8 @@ public class DrawTrail {
         Robot ro = new Robot();
         Toolkit tk = Toolkit.getDefaultToolkit();
         ss = tk.getScreenSize();
-        sw = ss.width -60;
-        sh = ss.height -60;
+        sw = ss.width - 60;
+        sh = ss.height - 60;
         Rectangle rec = new Rectangle(0, 0, sw, sh);
         image = ro.createScreenCapture(rec);
 //        image = new BufferedImage(sw, sh, BufferedImage.TYPE_INT_RGB);

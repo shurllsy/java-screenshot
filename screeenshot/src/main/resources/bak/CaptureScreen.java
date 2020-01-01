@@ -95,6 +95,7 @@ public class CaptureScreen {
         /**
          * 复原截图区域的蒙版效果
          * 目前是通过在区域上覆盖原图相同区域实现的
+         *
          * @param g 截图区域的Graphics
          */
         public void restoreRescale(Graphics g, int x1, int y1, int x2, int y2) {
@@ -316,6 +317,7 @@ public class CaptureScreen {
 
         /**
          * 双击保存到剪贴板
+         *
          * @param me MouseEvent
          */
         public void mouseClicked(MouseEvent me) {

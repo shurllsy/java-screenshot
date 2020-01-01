@@ -6,9 +6,6 @@ import com.shzq.screenshot.listener.Painter;
 import com.shzq.screenshot.listener.RectanglePainter;
 import com.shzq.screenshot.view.component.ToolsButton;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
@@ -21,6 +18,8 @@ import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author lianbo.zhang
@@ -109,7 +108,7 @@ public class ToolsBar extends JDialog {
 
     @Override
     public Component add(Component comp) {
-        if(comp instanceof ToolsButton) {
+        if (comp instanceof ToolsButton) {
             tools.add((ToolsButton) comp);
         }
         return super.add(comp);
@@ -174,7 +173,6 @@ public class ToolsBar extends JDialog {
             exe.printStackTrace();
         }
     }
-
 
     // 判断工具栏边界,返回工具栏坐标
     public Point getToolsLocationPoint(int startX, int startY, int endX, int endY) {

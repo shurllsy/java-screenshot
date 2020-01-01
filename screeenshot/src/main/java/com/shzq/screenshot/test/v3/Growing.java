@@ -1,24 +1,13 @@
 package com.shzq.screenshot.test.v3;
 
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.GraphicsConfiguration;
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
-import java.awt.RenderingHints;
-import java.awt.Transparency;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
-import javax.swing.Timer;
 
 @SuppressWarnings("serial")
 public class Growing extends JPanel {
@@ -42,7 +31,9 @@ public class Growing extends JPanel {
     }
 
     public void grow() {
-        if (stopped) { return; }
+        if (stopped) {
+            return;
+        }
 
         List<Point2D> temp = new ArrayList<Point2D>();
         temp.add(ps.get(0));

@@ -3,9 +3,6 @@ package com.shzq.screenshot.view.component;
 import com.shzq.screenshot.view.ToolsBar;
 
 import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.plaf.basic.BasicBorders;
-import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.List;
@@ -28,7 +25,7 @@ public class ToolsButton extends JButton implements MouseListener {
         this.toolsBar = toolsBar;
         this.addMouseListener(this);
         normalImg = new ImageIcon(getClass().getResource(ICON_PATH + icon + SUFFIX));
-        highlightImg = new ImageIcon(getClass().getResource(ICON_PATH + icon + "Highlight"+ SUFFIX));
+        highlightImg = new ImageIcon(getClass().getResource(ICON_PATH + icon + "Highlight" + SUFFIX));
         setIcon(normalImg);
         setBorder(null);
     }

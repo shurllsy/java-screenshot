@@ -22,8 +22,8 @@ public class DrawTrail2 {
     public void init() {
         Toolkit tk = Toolkit.getDefaultToolkit();
         ss = tk.getScreenSize();
-        sw = ss.width -60;
-        sh = ss.height -60;
+        sw = ss.width - 60;
+        sh = ss.height - 60;
         image = new BufferedImage(sw, sh, BufferedImage.TYPE_INT_RGB);
         g = image.getGraphics();
         g.fillRect(0, 0, sw, sh);
