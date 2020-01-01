@@ -28,6 +28,8 @@ public class ToolsButton extends JButton implements MouseListener {
         highlightImg = new ImageIcon(getClass().getResource(ICON_PATH + icon + "Highlight" + SUFFIX));
         setIcon(normalImg);
         setBorder(null);
+        setBorderPainted(false);
+        setContentAreaFilled(false);
     }
 
     @Override
