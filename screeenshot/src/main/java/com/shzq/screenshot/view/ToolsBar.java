@@ -2,6 +2,7 @@ package com.shzq.screenshot.view;
 
 import com.shzq.screenshot.bean.MyRectangle;
 import com.shzq.screenshot.listener.DefaultPainter;
+import com.shzq.screenshot.listener.LinePainter;
 import com.shzq.screenshot.listener.Painter;
 import com.shzq.screenshot.listener.RectanglePainter;
 import com.shzq.screenshot.view.component.ToolsButton;
@@ -32,8 +33,9 @@ public class ToolsBar extends JDialog {
     // 和截图区域的间距
     private int margin = 5;
     private ScreenFrame parent;
-    private Painter rectangleDrawer;
-    private Painter defaultDrawer;
+    private Painter defaultPainter;
+    private Painter rectanglePainter;
+    private Painter linePainter;
 
     private List<ToolsButton> tools;
 
@@ -44,10 +46,11 @@ public class ToolsBar extends JDialog {
 
         setUndecorated(true);
         setResizable(false);
-        defaultDrawer = new DefaultPainter(parent, this);
-        parent.setDrawer(defaultDrawer);
+        defaultPainter = new DefaultPainter(parent, this);
+        parent.setPainter(defaultPainter);
 
-        rectangleDrawer = new RectanglePainter(parent, this);
+        rectanglePainter = new RectanglePainter(parent, this);
+        linePainter = new LinePainter(parent, this);
 
         init();
         pack();
@@ -68,10 +71,16 @@ public class ToolsBar extends JDialog {
         panel.setLayout(layout);
         panel.setBorder(new EmptyBorder(5, 12, 5, 8));
 
+        // 直线
+        ToolsButton lineButton = new ToolsButton(this, "line");
+        lineButton.addActionListener(e -> {
+            parent.setPainter(linePainter);
+        });
+
         // 矩形画框
         ToolsButton selectButton = new ToolsButton(this, "select");
         selectButton.addActionListener(e -> {
-            parent.setDrawer(rectangleDrawer);
+            parent.setPainter(rectanglePainter);
         });
 
         // 保存下载
@@ -103,6 +112,7 @@ public class ToolsBar extends JDialog {
         sep.setBackground(Color.decode("#8b999b"));
 
         panel.add(selectButton);
+        panel.add(lineButton);
         panel.add(sep);
         panel.add(saveButton);
         panel.add(closeButton);

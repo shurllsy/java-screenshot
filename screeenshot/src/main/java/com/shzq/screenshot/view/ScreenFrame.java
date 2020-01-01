@@ -38,16 +38,16 @@ public class ScreenFrame extends JFrame {
         setBounds(0, 0, winDi.width, winDi.height);
     }
 
-    public void setDrawer(Painter drawer) {
+    public void setPainter(Painter painter) {
         Arrays.stream(imagePanel.getMouseListeners())
                 .forEach(imagePanel::removeMouseListener);
         Arrays.stream(imagePanel.getMouseMotionListeners())
                 .forEach(imagePanel::removeMouseMotionListener);
 
-        imagePanel.addMouseListener(drawer);
-        imagePanel.addMouseMotionListener(drawer);
+        imagePanel.addMouseListener(painter);
+        imagePanel.addMouseMotionListener(painter);
         imagePanel.painter.applyBufferImage();
-        imagePanel.painter = drawer;
+        imagePanel.painter = painter;
     }
 
     @Override
