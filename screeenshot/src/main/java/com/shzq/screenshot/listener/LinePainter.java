@@ -26,16 +26,15 @@ public class LinePainter extends Painter {
     public void pressed(MouseEvent e) {
         tools.setVisible(true);
         pressedPoint.setLocation(e.getPoint());
-        pressedPoint.x -= imagePanel.selectedRectangle.getStartX();
-        pressedPoint.y -= imagePanel.selectedRectangle.getStartY();
+        pressedPoint.x -= imagePanel.getSelectedRectangle().getStartX();
+        pressedPoint.y -= imagePanel.getSelectedRectangle().getStartY();
     }
 
     @Override
     public void dragged(MouseEvent e) {
         draggedPoint.setLocation(e.getPoint());
-        draggedPoint.x -= imagePanel.selectedRectangle.getStartX();
-        draggedPoint.y -= imagePanel.selectedRectangle.getStartY();
-
+        draggedPoint.x -= imagePanel.getSelectedRectangle().getStartX();
+        draggedPoint.y -= imagePanel.getSelectedRectangle().getStartY();
         imagePanel.repaint();
     }
 
@@ -54,7 +53,7 @@ public class LinePainter extends Painter {
         PainterUtil.drawLine(pressedPoint, draggedPoint, selectAreaGraphics);
 
         // 防止覆盖左和上边线，裁剪一个像素
-        MyRectangle selectedRectangle = imagePanel.selectedRectangle;
+        MyRectangle selectedRectangle = imagePanel.getSelectedRectangle();
         MyRectangle fixed = new MyRectangle(selectedRectangle);
         fixed.incrementStartX(1);
         fixed.incrementStartY(1);

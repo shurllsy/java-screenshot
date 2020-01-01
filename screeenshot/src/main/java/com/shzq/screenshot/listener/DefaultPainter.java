@@ -181,7 +181,7 @@ public class DefaultPainter extends Painter {
     }
 
     public void draw(Graphics g) {
-        MyRectangle selectedRectangle = imagePanel.selectedRectangle;
+        MyRectangle selectedRectangle = imagePanel.getSelectedRectangle();
         Dimension outRectangleDimension = selectedRectangle.getDimension();
         int startX = selectedRectangle.getStartX();
         int startY = selectedRectangle.getStartY();
@@ -200,7 +200,7 @@ public class DefaultPainter extends Painter {
             // 画框内取消阴影效果
             restoreRescale(bufferedImgGraphics, selectedRectangle);
             // 绘制画框的边线
-            PainterUtil.drawRectangle(imagePanel.selectedRectangle, bufferedImgGraphics);
+            PainterUtil.drawRectangle(imagePanel.getSelectedRectangle(), bufferedImgGraphics);
         }
         imagePanel.select = selectedRectangle.toRectangle();
 
@@ -308,10 +308,10 @@ public class DefaultPainter extends Painter {
      * @param midpointY y中点
      */
     public void drawEditBlockOnLine(Graphics g, int midpointX, int midpointY) {
-        int startX = imagePanel.selectedRectangle.getStartX();
-        int startY = imagePanel.selectedRectangle.getStartY();
-        int endX = imagePanel.selectedRectangle.getEndX();
-        int endY = imagePanel.selectedRectangle.getEndY();
+        int startX = imagePanel.getSelectedRectangle().getStartX();
+        int startY = imagePanel.getSelectedRectangle().getStartY();
+        int endX = imagePanel.getSelectedRectangle().getEndX();
+        int endY = imagePanel.getSelectedRectangle().getEndY();
         g.fillRect(midpointX - 2, startY - 2, 5, 5);
         g.fillRect(midpointX - 2, endY - 2, 5, 5);
         g.fillRect(startX - 2, midpointY - 2, 5, 5);

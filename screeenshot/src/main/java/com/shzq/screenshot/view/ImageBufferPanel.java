@@ -15,7 +15,7 @@ public class ImageBufferPanel extends JPanel {
     // 原始截图
     public BufferedImage image;
     // 选择的区域
-    public MyRectangle selectedRectangle;
+    private MyRectangle selectedRectangle;
     //表示选中的区域
     public Rectangle select = new Rectangle(0, 0, 0, 0);
 

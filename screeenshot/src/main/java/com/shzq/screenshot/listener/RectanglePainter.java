@@ -63,7 +63,7 @@ public class RectanglePainter extends Painter {
         PainterUtil.drawRectangle(rectangle, selectAreaGraphics);
 
         // 防止覆盖左和上边线，裁剪一个像素
-        MyRectangle selectedRectangle = imagePanel.selectedRectangle;
+        MyRectangle selectedRectangle = imagePanel.getSelectedRectangle();
         MyRectangle fixed = new MyRectangle(selectedRectangle);
         fixed.incrementStartX(1);
         fixed.incrementStartY(1);
