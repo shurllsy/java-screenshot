@@ -118,17 +118,34 @@ public class DefaultPainter extends Painter {
             int tmpStartY = outRectangle.getStartY() + movedY;
             int tmpEndX = outRectangle.getEndX() + movedX;
             int tmpEndY = outRectangle.getEndY() + movedY;
-            // TODO  修正算法 移动太快导致到边界停顿而不靠边
-            if (tmpStartX >= 0 && tmpEndX <= parent.winDi.width) {
-                outRectangle.setStartX(tmpStartX);
-                outRectangle.setEndX(tmpEndX);
+
+            // ww = windowWidth， wh = windowHeight
+            int ww = parent.winDi.width;
+            int wh = parent.winDi.height;
+            if (tmpStartX < 0) {
+                tmpEndX += Math.abs(tmpStartX);
+                tmpStartX = 0;
             }
-            if (tmpStartY >= 0 && tmpEndY <= parent.winDi.height) {
-                outRectangle.setStartY(tmpStartY);
-                outRectangle.setEndY(tmpEndY);
+            if (tmpStartY < 0) {
+                tmpEndY += Math.abs(tmpStartY);
+                tmpStartY = 0;
+            }
+            if (tmpEndX > ww) {
+                tmpStartX -= (tmpEndX - ww);
+                tmpEndX = ww;
+            }
+            if (tmpEndY > wh) {
+                tmpStartY -= (tmpEndY - wh);
+                tmpEndY = wh;
             }
 
+            outRectangle.setStartX(tmpStartX);
+            outRectangle.setEndX(tmpEndX);
+            outRectangle.setStartY(tmpStartY);
+            outRectangle.setEndY(tmpEndY);
+
             pressedPoint.setLocation(e.getPoint());
+
         } else if (current == States.EAST || current == States.WEST) {
             if (currentX == START_X) {
                 outRectangle.incrementStartX(movedX);
