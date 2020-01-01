@@ -8,11 +8,14 @@ import com.shzq.screenshot.view.component.ToolsButton;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileSystemView;
 import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -60,11 +63,10 @@ public class ToolsBar extends JDialog {
     }
 
     private void init() {
-        this.setLayout(new BorderLayout());
-        JToolBar toolBar = new JToolBar("toolsBar");
-        toolBar.setMargin(new Insets(3, 3, 3, 3));
-        // 可拖动 false
-        toolBar.setFloatable(false);
+        JPanel panel = new JPanel();
+        FlowLayout layout = new FlowLayout(FlowLayout.CENTER, 9, 1);
+        panel.setLayout(layout);
+        panel.setBorder(new EmptyBorder(5, 12, 5, 8));
 
         // 矩形画框
         ToolsButton selectButton = new ToolsButton(this, "select");
@@ -95,15 +97,45 @@ public class ToolsBar extends JDialog {
             parent.dispose();
         });
 
-        toolBar.add(selectButton);
-        toolBar.add(saveButton);
-        toolBar.add(closeButton);
-        toolBar.add(copyClipButton);
+        // 分隔符
+        JSeparator sep = new JSeparator(JSeparator.VERTICAL);
+        sep.setPreferredSize(new Dimension(8, 23));
+        sep.setBackground(Color.decode("#8b999b"));
 
-        this.add(toolBar, BorderLayout.NORTH);
+        panel.add(selectButton);
+        panel.add(sep);
+        panel.add(saveButton);
+        panel.add(closeButton);
+        panel.add(copyClipButton);
 
-        // 置顶
+        this.add(panel);
         this.setAlwaysOnTop(true);
+
+        MouseAdapter mouseAdapter = new MouseAdapter() {
+            Point press = new Point();
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                super.mousePressed(e);
+                press.setLocation(e.getPoint());
+            }
+
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                super.mouseDragged(e);
+                // 鼠标在X轴拖动距离，往右为正，往左为负
+                int movedX = e.getX() - press.x;
+                // 鼠标在Y轴拖动的距离，往下为正，往上为负
+                int movedY = e.getY() - press.y;
+                Point location = ToolsBar.this.getLocation();
+                location.x += movedX;
+                location.y += movedY;
+                ToolsBar.this.setLocation(location);
+            }
+        };
+
+        this.addMouseListener(mouseAdapter);
+        this.addMouseMotionListener(mouseAdapter);
     }
 
     @Override
