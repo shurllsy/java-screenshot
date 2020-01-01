@@ -20,11 +20,15 @@ public abstract class Painter implements MouseListener, MouseMotionListener {
     protected ImageBufferPanel imagePanel;
     protected ToolsBar tools;
 
+    protected BufferedImage bufferedImage;
+
     public Painter(ScreenFrame parent, ToolsBar tools) {
         this.parent = parent;
         imagePanel = parent.getImagePanel();
         this.tools = tools;
     }
+
+    public abstract void draw(Graphics g);
 
     /**
      * 公共，双击保存
@@ -59,6 +63,10 @@ public abstract class Painter implements MouseListener, MouseMotionListener {
     public final void mouseReleased(MouseEvent e) {
         tools.setVisible(true);
         released(e);
+    }
+
+    public void applyBufferImage() {
+        imagePanel.appliedImage = bufferedImage;
     }
 
     @Override

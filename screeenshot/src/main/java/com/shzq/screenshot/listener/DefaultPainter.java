@@ -1,14 +1,15 @@
 package com.shzq.screenshot.listener;
 
 import com.shzq.screenshot.bean.MyRectangle;
+import com.shzq.screenshot.enums.States;
 import com.shzq.screenshot.utils.PainterUtil;
 import com.shzq.screenshot.view.ScreenFrame;
-import com.shzq.screenshot.enums.States;
 import com.shzq.screenshot.view.ToolsBar;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.awt.image.RescaleOp;
 
 /**
  * @author lianbo.zhang
@@ -17,6 +18,7 @@ import java.awt.image.BufferedImage;
 public class DefaultPainter extends Painter {
     private Cursor cs = new Cursor(Cursor.CROSSHAIR_CURSOR);//表示一般情况下的鼠标状态
 
+    private Rectangle[] rec;//表示八个编辑点的区域
     private Point pressedPoint = new Point();
     //下面四个常量,分别表示谁是被选中的那条线上的端点
     public static final int START_X = 1;
@@ -24,11 +26,29 @@ public class DefaultPainter extends Painter {
     public static final int END_X = 3;
     public static final int END_Y = 4;
 
+
     //当前被选中的X和Y,只有这两个需要改变
     public int currentX, currentY;
 
     public DefaultPainter(ScreenFrame parent, ToolsBar tools) {
         super(parent, tools);
+        initLayer();
+        initRecs();
+        imagePanel.painter = this;
+    }
+
+    private void initRecs() {
+        rec = new Rectangle[8];
+        for (int i = 0; i < rec.length; i++) {
+            rec[i] = new Rectangle();
+        }
+    }
+
+    private void initLayer() {
+        // 带阴影的图层
+        RescaleOp rescaleOp = new RescaleOp(0.7f, 0, null);
+        bufferedImage = rescaleOp.filter(imagePanel.image, null);
+        imagePanel.appliedImage = rescaleOp.filter(imagePanel.image, null);
     }
 
     @Override
@@ -98,6 +118,7 @@ public class DefaultPainter extends Painter {
             int tmpStartY = outRectangle.getStartY() + movedY;
             int tmpEndX = outRectangle.getEndX() + movedX;
             int tmpEndY = outRectangle.getEndY() + movedY;
+            // TODO  修正算法 移动太快导致到边界停顿而不靠边
             if (tmpStartX >= 0 && tmpEndX <= parent.winDi.width) {
                 outRectangle.setStartX(tmpStartX);
                 outRectangle.setEndX(tmpEndX);
@@ -138,14 +159,56 @@ public class DefaultPainter extends Painter {
         } else {
             outRectangle.reset(pressedPoint.x, pressedPoint.y, e.getX(), e.getY());
         }
-        imagePanel.repaint();
 
+        imagePanel.repaint();
+    }
+
+    public void draw(Graphics g) {
+        MyRectangle selectedRectangle = imagePanel.selectedRectangle;
+        Dimension outRectangleDimension = selectedRectangle.getDimension();
+        int startX = selectedRectangle.getStartX();
+        int startY = selectedRectangle.getStartY();
+        int endX = selectedRectangle.getEndX();
+        int endY = selectedRectangle.getEndY();
+        int selectWidth = outRectangleDimension.width;
+        int selectHeight = outRectangleDimension.height;
+
+//        initLayer();
+        BufferedImage ipImg = imagePanel.appliedImage;
+        bufferedImage = new BufferedImage(ipImg.getWidth(), ipImg.getHeight(), ipImg.getType());
+        bufferedImage.setData(ipImg.getData());
+
+        Graphics bufferedImgGraphics = bufferedImage.getGraphics();
+        bufferedImgGraphics.setColor(Color.decode("#1EA4FF"));
+        if (selectWidth > 0 && selectHeight > 0) {
+            // 画框内取消阴影效果
+            restoreRescale(bufferedImgGraphics, selectedRectangle);
+        }
+        imagePanel.select = selectedRectangle.toRectangle();
+
+        //画框x、y轴中点
+        int midpointX = startX + selectWidth / 2;
+        int midpointY = startY + selectHeight / 2;
+        // 绘制画框的边线
+        drawOutline(bufferedImgGraphics);
+
+        // 绘制画框边上的八个改变大小的红方块
+        drawEditBlockOnLine(bufferedImgGraphics, midpointX, midpointY);
+        g.drawImage(bufferedImage, 0, 0, parent.winDi.width, parent.winDi.height, null);
+        // 计算八个编辑点的区域坐标，并保存至rec，用于编辑大小时 识别是哪个点，以便调整大小计算
+        rec[0] = new Rectangle(startX - 5, startY - 5, 10, 10);
+        rec[1] = new Rectangle(midpointX - 5, startY - 5, 10, 10);
+        rec[2] = new Rectangle(endX - 5, startY - 5, 10, 10);
+        rec[3] = new Rectangle(endX - 5, midpointY - 5, 10, 10);
+        rec[4] = new Rectangle(endX, endY - 5, 10, 10);
+        rec[5] = new Rectangle(midpointX - 5, endY - 5, 10, 10);
+        rec[6] = new Rectangle(startX - 5, endY - 5, 10, 10);
+        rec[7] = new Rectangle(startX - 5, midpointY - 5, 10, 10);
     }
 
     //特意定义一个方法处理鼠标移动,是为了每次都能初始化一下所要选择的地区
     private void doMouseMoved(MouseEvent e) {
         //判断编辑后不能再移动
-        Rectangle[] rec = imagePanel.getRec();
         if (imagePanel.getSelect().contains(e.getPoint())) {
             imagePanel.setCursor(new Cursor(Cursor.MOVE_CURSOR));
             imagePanel.current = States.MOVE;
@@ -204,4 +267,51 @@ public class DefaultPainter extends Painter {
                 break;
         }
     }
+
+    /**
+     * 复原截图区域的蒙版效果
+     * 目前是通过在区域上覆盖原图相同区域实现的
+     *
+     * @param g 截图区域的Graphics
+     */
+    public void restoreRescale(Graphics g, MyRectangle rectangle) {
+        int startX = rectangle.getStartX();
+        int startY = rectangle.getStartY();
+        Dimension dimension = rectangle.getDimension();
+        imagePanel.selectAreaImage = imagePanel.image.getSubimage(startX, startY, dimension.width, dimension.height);
+        imagePanel.selectAreaGraphics = imagePanel.selectAreaImage.getGraphics();
+        imagePanel.selectAreaImageCache = new BufferedImage(dimension.width, dimension.height, imagePanel.selectAreaImage.getType());
+        imagePanel.selectAreaImageCache.setData(imagePanel.selectAreaImage.getData());
+        g.drawImage(imagePanel.selectAreaImage, startX, startY, null);
+    }
+
+    /**
+     * 画外边线
+     */
+    public void drawOutline(Graphics g) {
+        PainterUtil.drawRectangle(imagePanel.selectedRectangle, g);
+    }
+
+    /**
+     * 线上 编辑的点
+     *
+     * @param g         Graphics
+     * @param midpointX x中点
+     * @param midpointY y中点
+     */
+    public void drawEditBlockOnLine(Graphics g, int midpointX, int midpointY) {
+        int startX = imagePanel.selectedRectangle.getStartX();
+        int startY = imagePanel.selectedRectangle.getStartY();
+        int endX = imagePanel.selectedRectangle.getEndX();
+        int endY = imagePanel.selectedRectangle.getEndY();
+        g.fillRect(midpointX - 2, startY - 2, 5, 5);
+        g.fillRect(midpointX - 2, endY - 2, 5, 5);
+        g.fillRect(startX - 2, midpointY - 2, 5, 5);
+        g.fillRect(endX - 2, midpointY - 2, 5, 5);
+        g.fillRect(startX - 2, startY - 2, 5, 5);
+        g.fillRect(startX - 2, endY - 2, 5, 5);
+        g.fillRect(endX - 2, startY - 2, 5, 5);
+        g.fillRect(endX - 2, endY - 2, 5, 5);
+    }
+
 }

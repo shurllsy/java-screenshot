@@ -30,7 +30,7 @@ public class ScreenFrame extends JFrame {
         winDi = tk.getScreenSize();
         Rectangle rec = new Rectangle(0, 0, winDi.width, winDi.height);
         BufferedImage initBufferImage = ro.createScreenCapture(rec);
-        imagePanel = new ImageBufferPanel(initBufferImage, winDi);
+        imagePanel = new ImageBufferPanel(initBufferImage);
         getContentPane().add(imagePanel, BorderLayout.CENTER);
         setSize(winDi);
         tools = new ToolsBar(this);
@@ -47,6 +47,8 @@ public class ScreenFrame extends JFrame {
 
         imagePanel.addMouseListener(drawer);
         imagePanel.addMouseMotionListener(drawer);
+        imagePanel.painter.applyBufferImage();
+        imagePanel.painter = drawer;
     }
 
     @Override

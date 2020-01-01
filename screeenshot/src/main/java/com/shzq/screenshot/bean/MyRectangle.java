@@ -20,6 +20,13 @@ public class MyRectangle {
 
     }
 
+    public MyRectangle(MyRectangle source){
+        leftTop.setLocation(source.leftTop);
+        leftBottom.setLocation(source.leftBottom);
+        rightTop.setLocation(source.rightTop);
+        rightBottom.setLocation(source.rightBottom);
+    }
+
     /**
      * 从矩形对角线的两个坐标点创建矩形
      *

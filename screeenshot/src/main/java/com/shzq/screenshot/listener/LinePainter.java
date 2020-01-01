@@ -16,4 +16,9 @@ public class LinePainter extends Painter {
         super(parent, tools);
     }
 
+    @Override
+    public void draw(Graphics g) {
+
+    }
+
 }
