@@ -4,6 +4,10 @@ import com.shzq.screenshot.bean.MyRectangle;
 import com.shzq.screenshot.listener.DefaultPainter;
 import com.shzq.screenshot.listener.Painter;
 import com.shzq.screenshot.listener.RectanglePainter;
+import com.shzq.screenshot.view.component.ToolsButton;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -26,14 +30,14 @@ public class ToolsBar extends JDialog {
     // 和截图区域的间距
     private int margin = 5;
     private ScreenFrame parent;
-
     private Painter rectangleDrawer;
     private Painter defaultDrawer;
 
-    public static int drawType = 0;
+    private List<ToolsButton> tools;
 
     public ToolsBar(ScreenFrame parent) {
         // owner 用来保证工具条悬浮在截屏之上
+        tools = new ArrayList<>();
         this.parent = parent;
 
         setUndecorated(true);
@@ -64,20 +68,13 @@ public class ToolsBar extends JDialog {
         toolBar.setFloatable(false);
 
         // 矩形画框
-        ImageIcon selectIcon = new ImageIcon(getClass().getResource("/icon/select.png"));
-        JButton selectButton = new JButton(selectIcon);
-
-        selectButton.setBorder(null);
+        ToolsButton selectButton = new ToolsButton(this, "select");
         selectButton.addActionListener(e -> {
             parent.setDrawer(rectangleDrawer);
         });
-        toolBar.add(selectButton);
 
         // 保存下载
-        ImageIcon saveIcon = new ImageIcon(getClass().getResource("/icon/save.png"));
-        JButton saveButton = new JButton(saveIcon);
-
-        saveButton.setBorder(null);
+        ToolsButton saveButton = new ToolsButton(this, "save");
         saveButton.addActionListener(e -> {
             try {
                 save(parent.getSelectedImg());
@@ -85,31 +82,37 @@ public class ToolsBar extends JDialog {
                 ex.printStackTrace();
             }
         });
-        toolBar.add(saveButton);
 
         // 关闭
-        ImageIcon closeIcon = new ImageIcon(getClass().getResource("/icon/close.png"));
-        JButton closeButton = new JButton(closeIcon);
-        closeButton.setBorder(null);
+        ToolsButton closeButton = new ToolsButton(this, "close");
         closeButton.addActionListener(e -> {
             parent.dispose();
         });
-        toolBar.add(closeButton);
 
         // 拷贝到剪贴板
-        ImageIcon finishIcon = new ImageIcon(getClass().getResource("/icon/finish.png"));
-        JButton copyClipButton = new JButton(finishIcon);
-        copyClipButton.setBorder(null);
+        ToolsButton copyClipButton = new ToolsButton(this, "finish");
         copyClipButton.addActionListener(e -> {
             copyToClipboard(parent.getSelectedImg());
             parent.dispose();
         });
+
+        toolBar.add(selectButton);
+        toolBar.add(saveButton);
+        toolBar.add(closeButton);
         toolBar.add(copyClipButton);
 
         this.add(toolBar, BorderLayout.NORTH);
 
         // 置顶
         this.setAlwaysOnTop(true);
+    }
+
+    @Override
+    public Component add(Component comp) {
+        if(comp instanceof ToolsButton) {
+            tools.add((ToolsButton) comp);
+        }
+        return super.add(comp);
     }
 
     /**
@@ -179,7 +182,7 @@ public class ToolsBar extends JDialog {
         return getToolsLocationPoint(rectangle);
     }
 
-    public Point getToolsLocationPoint(MyRectangle rectangle){
+    public Point getToolsLocationPoint(MyRectangle rectangle) {
         Point p = new Point(rectangle.getRightBottom());
         p.x -= (getWidth() + 10);
         if (p.y + getHeight() + margin > parent.winDi.height) {
@@ -194,4 +197,7 @@ public class ToolsBar extends JDialog {
         return p;
     }
 
+    public List<ToolsButton> getTools() {
+        return tools;
+    }
 }

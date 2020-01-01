@@ -15,38 +15,30 @@ import java.awt.image.BufferedImage;
 public class ImageBufferPanel extends JPanel {
     // 原始截图
     public BufferedImage image;
+    // 选择的区域
+    public MyRectangle selectedRectangle;
+    //表示选中的区域
+    public Rectangle select = new Rectangle(0, 0, 0, 0);
 
     /**
      * 已经应用到面板的图（全屏panel中显示的，每个painter作图完毕会将缓存刷新到该变量）
      */
     public BufferedImage appliedImage;
-    public Graphics selectAreaGraphics;
     // 画矩形等标记，主要是修改该图，最后将该图draw到选框范围内
     public BufferedImage selectAreaImage;
     public BufferedImage selectAreaImageCache;
 
+    // 画笔
     public Painter painter;
-    // 选择的区域
-    public MyRectangle selectedRectangle;
-    //表示选中的区域
-    public Rectangle select = new Rectangle(0, 0, 0, 0);
-    // 表示当前的编辑状态
-    public States current = States.DEFAULT;
 
     public ImageBufferPanel(BufferedImage image) {
+        super(true);
         selectedRectangle = new MyRectangle();
         this.image = image;
     }
 
-    public void setCurrent(States states) {
-        this.current = states;
-    }
-
-    public States getCurrent() {
-        return this.current;
-    }
-
     public void paintComponent(Graphics g) {
+        super.paintComponent(g);
         painter.draw(g);
     }
 

@@ -61,10 +61,6 @@ public class ScreenFrame extends JFrame {
         return imagePanel.getSelectedImg();
     }
 
-    public void setCurrent(States states) {
-        imagePanel.setCurrent(states);
-    }
-
     public ImageBufferPanel getImagePanel() {
         return imagePanel;
     }

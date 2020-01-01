@@ -16,19 +16,23 @@ import java.awt.image.RescaleOp;
  * @date 2019/12/27
  */
 public class DefaultPainter extends Painter {
-    private Cursor cs = new Cursor(Cursor.CROSSHAIR_CURSOR);//表示一般情况下的鼠标状态
 
-    private Rectangle[] rec;//表示八个编辑点的区域
+    //表示八个编辑点的区域
+    private Rectangle[] rec;
+    // 鼠标按下的坐标
     private Point pressedPoint = new Point();
     //下面四个常量,分别表示谁是被选中的那条线上的端点
     public static final int START_X = 1;
     public static final int START_Y = 2;
     public static final int END_X = 3;
     public static final int END_Y = 4;
-
-
+    // 表示当前的编辑状态
+    public States current = States.DEFAULT;
     //当前被选中的X和Y,只有这两个需要改变
     public int currentX, currentY;
+
+    //表示一般情况下的鼠标状态
+    private Cursor defaultCursor = new Cursor(Cursor.CROSSHAIR_CURSOR);
 
     public DefaultPainter(ScreenFrame parent, ToolsBar tools) {
         super(parent, tools);
@@ -66,12 +70,9 @@ public class DefaultPainter extends Painter {
     public void released(MouseEvent e) {
         // 设置工具条位置
         MyRectangle outRectangle = imagePanel.getSelectedRectangle();
-//        MyRectangle t = new MyRectangle(2,2, 20,20);
-//        PainterUtil.drawRectangle(t, imagePanel.selectAreaGraphics.create());
-//        imagePanel.repaint();
         tools.moveTo(tools.getToolsLocationPoint(outRectangle));
         if (e.isPopupTrigger()) {
-            if (imagePanel.getCurrent() == States.MOVE) {
+            if (current == States.MOVE) {
                 outRectangle.setStartX(0);
                 outRectangle.setStartY(0);
                 outRectangle.setEndX(0);
@@ -98,7 +99,7 @@ public class DefaultPainter extends Painter {
     @Override
     public void moved(MouseEvent e) {
         doMouseMoved(e);
-        initSelect(imagePanel.current);
+        initSelect(current);
     }
 
     @Override
@@ -110,7 +111,6 @@ public class DefaultPainter extends Painter {
         int movedX = x - pressedPoint.x;
         // 鼠标在Y轴拖动的距离，往下为正，往上为负
         int movedY = y - pressedPoint.y;
-        States current = imagePanel.current;
         if (current == States.MOVE) {
 
             //控制选框只能在屏幕范围内拖动，并且保持大小不异常改变
@@ -173,24 +173,23 @@ public class DefaultPainter extends Painter {
         int selectWidth = outRectangleDimension.width;
         int selectHeight = outRectangleDimension.height;
 
-//        initLayer();
         BufferedImage ipImg = imagePanel.appliedImage;
-        bufferedImage = new BufferedImage(ipImg.getWidth(), ipImg.getHeight(), ipImg.getType());
-        bufferedImage.setData(ipImg.getData());
+        bufferedImage = PainterUtil.createCompatibleImage(ipImg.getWidth(), ipImg.getHeight(), ipImg.getType());
 
         Graphics bufferedImgGraphics = bufferedImage.getGraphics();
+        bufferedImgGraphics.drawImage(ipImg, 0, 0, null);
         bufferedImgGraphics.setColor(Color.decode("#1EA4FF"));
         if (selectWidth > 0 && selectHeight > 0) {
             // 画框内取消阴影效果
             restoreRescale(bufferedImgGraphics, selectedRectangle);
+            // 绘制画框的边线
+            PainterUtil.drawRectangle(imagePanel.selectedRectangle, bufferedImgGraphics);
         }
         imagePanel.select = selectedRectangle.toRectangle();
 
         //画框x、y轴中点
         int midpointX = startX + selectWidth / 2;
         int midpointY = startY + selectHeight / 2;
-        // 绘制画框的边线
-        drawOutline(bufferedImgGraphics);
 
         // 绘制画框边上的八个改变大小的红方块
         drawEditBlockOnLine(bufferedImgGraphics, midpointX, midpointY);
@@ -211,18 +210,18 @@ public class DefaultPainter extends Painter {
         //判断编辑后不能再移动
         if (imagePanel.getSelect().contains(e.getPoint())) {
             imagePanel.setCursor(new Cursor(Cursor.MOVE_CURSOR));
-            imagePanel.current = States.MOVE;
+            current = States.MOVE;
         } else {
             States[] st = States.values();
             for (int i = 0; i < rec.length; i++) {
                 if (rec[i].contains(e.getPoint())) {
-                    imagePanel.current = st[i];
+                    current = st[i];
                     imagePanel.setCursor(st[i].getCursor());
                     return;
                 }
             }
-            imagePanel.setCursor(cs);
-            imagePanel.current = States.DEFAULT;
+            current = States.DEFAULT;
+            imagePanel.setCursor(defaultCursor);
         }
     }
 
@@ -279,17 +278,9 @@ public class DefaultPainter extends Painter {
         int startY = rectangle.getStartY();
         Dimension dimension = rectangle.getDimension();
         imagePanel.selectAreaImage = imagePanel.image.getSubimage(startX, startY, dimension.width, dimension.height);
-        imagePanel.selectAreaGraphics = imagePanel.selectAreaImage.getGraphics();
-        imagePanel.selectAreaImageCache = new BufferedImage(dimension.width, dimension.height, imagePanel.selectAreaImage.getType());
+        imagePanel.selectAreaImageCache = PainterUtil.createCompatibleImage(dimension.width, dimension.height, imagePanel.selectAreaImage.getType());
         imagePanel.selectAreaImageCache.setData(imagePanel.selectAreaImage.getData());
         g.drawImage(imagePanel.selectAreaImage, startX, startY, null);
-    }
-
-    /**
-     * 画外边线
-     */
-    public void drawOutline(Graphics g) {
-        PainterUtil.drawRectangle(imagePanel.selectedRectangle, g);
     }
 
     /**

@@ -44,4 +44,12 @@ public class PainterUtil {
         g.drawLine(p1.x, p1.y, p2.x, p2.y);
     }
 
+    // 创建硬件适配的缓冲图像，为了能显示得更快速
+    public static BufferedImage createCompatibleImage(int w, int h, int type) {
+        GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        GraphicsDevice device = env.getDefaultScreenDevice();
+        GraphicsConfiguration gc = device.getDefaultConfiguration();
+        return gc.createCompatibleImage(w, h, type);
+    }
+
 }

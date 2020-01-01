@@ -51,23 +51,24 @@ public class RectanglePainter extends Painter {
             .bufferImage 为当前画笔操作的图，draw之前先恢复屏幕的图，用来擦除轨迹，显示最新结果
          */
         BufferedImage ipImg = imagePanel.appliedImage;
-        bufferedImage = new BufferedImage(ipImg.getWidth(), ipImg.getHeight(), ipImg.getType());
-        bufferedImage.setData(ipImg.getData());
+        bufferedImage = PainterUtil.createCompatibleImage(ipImg.getWidth(), ipImg.getHeight(), ipImg.getType());
+        Graphics bufferedImgGraphics = bufferedImage.getGraphics();
+        bufferedImgGraphics.drawImage(ipImg, 0,0, null);
 
         BufferedImage selectAreaImage = imagePanel.selectAreaImage;
-        selectAreaImage.setData(imagePanel.selectAreaImageCache.getData());
+        Graphics selectAreaGraphics = selectAreaImage.createGraphics();
+        selectAreaGraphics.drawImage(imagePanel.selectAreaImageCache, 0,0, null);
 
-        Graphics bufferedImgGraphics = bufferedImage.getGraphics();
-
-        Graphics selectAreaGraphics = imagePanel.selectAreaGraphics;
         selectAreaGraphics.setColor(Color.red);
         PainterUtil.drawRectangle(rectangle, selectAreaGraphics);
 
+        // 防止覆盖左和上边线，裁剪一个像素
         MyRectangle selectedRectangle = imagePanel.selectedRectangle;
         MyRectangle fixed = new MyRectangle(selectedRectangle);
         fixed.incrementStartX(1);
         fixed.incrementStartY(1);
         BufferedImage subImage = selectAreaImage.getSubimage(1, 1, selectAreaImage.getWidth()-1, selectAreaImage.getHeight()-1);
+
         PainterUtil.drawImage(fixed, subImage, bufferedImgGraphics);
 
         g.drawImage(bufferedImage, 0, 0, parent.winDi.width, parent.winDi.height, null);
