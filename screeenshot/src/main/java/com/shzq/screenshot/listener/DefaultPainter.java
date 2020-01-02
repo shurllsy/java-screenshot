@@ -71,7 +71,6 @@ public class DefaultPainter extends Painter {
         // 设置工具条位置
         MyRectangle outRectangle = imagePanel.getSelectedRectangle();
         tools.moveTo(tools.getToolsLocationPoint(outRectangle));
-        applyBufferImage();
         if (e.isPopupTrigger()) {
             if (current == States.MOVE) {
                 outRectangle.setStartX(0);
