@@ -1,10 +1,8 @@
 package com.shzq.screenshot.view;
 
 import com.shzq.screenshot.bean.MyRectangle;
-import com.shzq.screenshot.listener.DefaultPainter;
-import com.shzq.screenshot.listener.LinePainter;
 import com.shzq.screenshot.listener.Painter;
-import com.shzq.screenshot.listener.RectanglePainter;
+import com.shzq.screenshot.listener.*;
 import com.shzq.screenshot.view.component.ToolsButton;
 
 import javax.imageio.ImageIO;
@@ -36,6 +34,7 @@ public class ToolsBar extends JDialog {
     private Painter defaultPainter;
     private Painter rectanglePainter;
     private Painter linePainter;
+    private Painter textPainter;
 
     private List<ToolsButton> tools;
 
@@ -46,11 +45,6 @@ public class ToolsBar extends JDialog {
 
         setUndecorated(true);
         setResizable(false);
-        defaultPainter = new DefaultPainter(parent, this);
-        parent.setPainter(defaultPainter);
-
-        rectanglePainter = new RectanglePainter(parent, this);
-        linePainter = new LinePainter(parent, this);
 
         init();
         pack();
@@ -66,7 +60,20 @@ public class ToolsBar extends JDialog {
     }
 
     private void init() {
+        defaultPainter = new DefaultPainter(parent, this);
+        rectanglePainter = new RectanglePainter(parent, this);
+        linePainter = new LinePainter(parent, this);
+        textPainter = new TextPainter(parent, this);
+
+        parent.setPainter(defaultPainter);
+
         JPanel panel = new Panel();
+
+        // 矩形画框
+        ToolsButton selectButton = new ToolsButton(this, "select");
+        selectButton.addActionListener(e -> {
+            parent.setPainter(rectanglePainter);
+        });
 
         // 直线
         ToolsButton lineButton = new ToolsButton(this, "line");
@@ -74,11 +81,17 @@ public class ToolsBar extends JDialog {
             parent.setPainter(linePainter);
         });
 
-        // 矩形画框
-        ToolsButton selectButton = new ToolsButton(this, "select");
-        selectButton.addActionListener(e -> {
-            parent.setPainter(rectanglePainter);
+
+        // 文字
+        ToolsButton textButton = new ToolsButton(this, "text");
+        textButton.addActionListener(e -> {
+            parent.setPainter(textPainter);
         });
+
+        // 分隔符
+        JSeparator sep = new JSeparator(JSeparator.VERTICAL);
+        sep.setPreferredSize(new Dimension(8, 23));
+        sep.setBackground(Color.decode("#8b999b"));
 
         // 保存下载
         ToolsButton saveButton = new ToolsButton(this, "save");
@@ -103,13 +116,9 @@ public class ToolsBar extends JDialog {
             parent.dispose();
         });
 
-        // 分隔符
-        JSeparator sep = new JSeparator(JSeparator.VERTICAL);
-        sep.setPreferredSize(new Dimension(8, 23));
-        sep.setBackground(Color.decode("#8b999b"));
-
         panel.add(selectButton);
         panel.add(lineButton);
+        panel.add(textButton);
         panel.add(sep);
         panel.add(saveButton);
         panel.add(closeButton);

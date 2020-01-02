@@ -57,7 +57,6 @@ public class DefaultPainter extends Painter {
 
     @Override
     public void pressed(MouseEvent e) {
-
         if (e.getButton() == MouseEvent.BUTTON1) {
             pressedPoint.setLocation(e.getX(), e.getY());
             tools.setVisible(false);
