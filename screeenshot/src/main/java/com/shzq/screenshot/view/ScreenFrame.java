@@ -14,9 +14,11 @@ import java.util.Arrays;
 public class ScreenFrame extends JFrame {
 
     private ImageBufferPanel imagePanel;
+    // 画笔
+    private Painter painter;
 
     public Dimension winDi;
-    private ToolsBar tools;
+    private ToolsBar toolsBar;
 
     public ScreenFrame() throws AWTException {
         setUndecorated(true);
@@ -29,10 +31,11 @@ public class ScreenFrame extends JFrame {
         winDi = tk.getScreenSize();
         Rectangle rec = new Rectangle(0, 0, winDi.width, winDi.height);
         BufferedImage initBufferImage = ro.createScreenCapture(rec);
-        imagePanel = new ImageBufferPanel(initBufferImage);
+        imagePanel = new ImageBufferPanel(this, initBufferImage);
         getContentPane().add(imagePanel, BorderLayout.CENTER);
         setSize(winDi);
-        tools = new ToolsBar(this);
+        // 初始化工具条
+        toolsBar = new ToolsBar(this);
         setVisible(true);
         //防止窗口被状态栏挤下去
         setBounds(0, 0, winDi.width, winDi.height);
@@ -46,14 +49,14 @@ public class ScreenFrame extends JFrame {
 
         imagePanel.addMouseListener(painter);
         imagePanel.addMouseMotionListener(painter);
-        imagePanel.painter.applyBufferImage();
-        imagePanel.painter = painter;
+        painter.applyBufferImage();
+        this.painter = painter;
     }
 
     @Override
     public void dispose() {
         super.dispose();
-        tools.dispose();
+        toolsBar.dispose();
     }
 
     public BufferedImage getSelectedImg() {
@@ -64,8 +67,11 @@ public class ScreenFrame extends JFrame {
         return imagePanel;
     }
 
-    public ToolsBar getTools() {
-        return tools;
+    public ToolsBar getToolsBar() {
+        return toolsBar;
     }
 
+    public Painter getPainter() {
+        return painter;
+    }
 }

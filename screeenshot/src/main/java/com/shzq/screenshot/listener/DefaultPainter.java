@@ -12,6 +12,8 @@ import java.awt.image.BufferedImage;
 import java.awt.image.RescaleOp;
 
 /**
+ * 区域截取
+ *
  * @author lianbo.zhang
  * @date 2019/12/27
  */
@@ -38,7 +40,6 @@ public class DefaultPainter extends Painter {
         super(parent, tools);
         initLayer();
         initRecs();
-        imagePanel.painter = this;
     }
 
     private void initRecs() {
@@ -50,9 +51,8 @@ public class DefaultPainter extends Painter {
 
     private void initLayer() {
         // 带阴影的图层
-        RescaleOp rescaleOp = new RescaleOp(0.7f, 0, null);
+        RescaleOp rescaleOp = new RescaleOp(0.6f, 0, null);
         bufferedImage = rescaleOp.filter(imagePanel.image, null);
-        imagePanel.appliedImage = rescaleOp.filter(imagePanel.image, null);
     }
 
     @Override
@@ -71,6 +71,7 @@ public class DefaultPainter extends Painter {
         // 设置工具条位置
         MyRectangle outRectangle = imagePanel.getSelectedRectangle();
         tools.moveTo(tools.getToolsLocationPoint(outRectangle));
+        applyBufferImage();
         if (e.isPopupTrigger()) {
             if (current == States.MOVE) {
                 outRectangle.setStartX(0);
@@ -190,7 +191,7 @@ public class DefaultPainter extends Painter {
         int selectWidth = outRectangleDimension.width;
         int selectHeight = outRectangleDimension.height;
 
-        BufferedImage ipImg = imagePanel.appliedImage;
+        BufferedImage ipImg = imagePanel.getAppliedImage();
         bufferedImage = PainterUtil.createCompatibleImage(ipImg.getWidth(), ipImg.getHeight(), ipImg.getType());
 
         Graphics bufferedImgGraphics = bufferedImage.getGraphics();

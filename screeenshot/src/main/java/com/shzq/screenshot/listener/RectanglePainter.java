@@ -10,6 +10,8 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
 /**
+ * 矩形标注
+ *
  * @author lianbo.zhang
  * @date 2019/12/28
  */
@@ -19,8 +21,6 @@ public class RectanglePainter extends Painter {
 
     public RectanglePainter(ScreenFrame parent, ToolsBar tools) {
         super(parent, tools);
-        BufferedImage appliedImage = imagePanel.appliedImage;
-        bufferedImage = new BufferedImage(appliedImage.getWidth(), appliedImage.getHeight(), appliedImage.getType());
     }
 
     @Override
@@ -50,7 +50,7 @@ public class RectanglePainter extends Painter {
             .appliedImage缓存了当前全屏显示的图
             .bufferImage 为当前画笔操作的图，draw之前先恢复屏幕的图，用来擦除轨迹，显示最新结果
          */
-        BufferedImage ipImg = imagePanel.appliedImage;
+        BufferedImage ipImg = imagePanel.getAppliedImage();
         bufferedImage = PainterUtil.createCompatibleImage(ipImg.getWidth(), ipImg.getHeight(), ipImg.getType());
         Graphics bufferedImgGraphics = bufferedImage.getGraphics();
         bufferedImgGraphics.drawImage(ipImg, 0, 0, null);
@@ -72,6 +72,7 @@ public class RectanglePainter extends Painter {
         PainterUtil.drawImage(fixed, subImage, bufferedImgGraphics);
 
         g.drawImage(bufferedImage, 0, 0, parent.winDi.width, parent.winDi.height, null);
+
     }
 
     @Override

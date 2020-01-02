@@ -66,10 +66,7 @@ public class ToolsBar extends JDialog {
     }
 
     private void init() {
-        JPanel panel = new JPanel();
-        FlowLayout layout = new FlowLayout(FlowLayout.CENTER, 9, 1);
-        panel.setLayout(layout);
-        panel.setBorder(new EmptyBorder(5, 12, 5, 8));
+        JPanel panel = new Panel();
 
         // 直线
         ToolsButton lineButton = new ToolsButton(this, "line");
@@ -146,14 +143,6 @@ public class ToolsBar extends JDialog {
 
         this.addMouseListener(mouseAdapter);
         this.addMouseMotionListener(mouseAdapter);
-    }
-
-    @Override
-    public Component add(Component comp) {
-        if (comp instanceof ToolsButton) {
-            tools.add((ToolsButton) comp);
-        }
-        return super.add(comp);
     }
 
     /**
@@ -239,5 +228,26 @@ public class ToolsBar extends JDialog {
 
     public List<ToolsButton> getTools() {
         return tools;
+    }
+
+    /**
+     * 工具条Panel
+     */
+    private class Panel extends JPanel {
+
+        public Panel() {
+            FlowLayout layout = new FlowLayout(FlowLayout.CENTER, 9, 1);
+            setLayout(layout);
+            setBorder(new EmptyBorder(5, 12, 5, 8));
+        }
+
+        @Override
+        public Component add(Component comp) {
+            if (comp instanceof ToolsButton) {
+                tools.add((ToolsButton) comp);
+            }
+            return super.add(comp);
+        }
+
     }
 }

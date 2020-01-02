@@ -10,6 +10,8 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
 /**
+ * 直线标注
+ *
  * @author lianbo.zhang
  * @date 2019/12/30
  */
@@ -40,7 +42,7 @@ public class LinePainter extends Painter {
 
     @Override
     public void draw(Graphics g) {
-        BufferedImage ipImg = imagePanel.appliedImage;
+        BufferedImage ipImg = imagePanel.getAppliedImage();
         bufferedImage = PainterUtil.createCompatibleImage(ipImg.getWidth(), ipImg.getHeight(), ipImg.getType());
         Graphics bufferedImgGraphics = bufferedImage.getGraphics();
         bufferedImgGraphics.drawImage(ipImg, 0, 0, null);
@@ -62,13 +64,13 @@ public class LinePainter extends Painter {
         PainterUtil.drawImage(fixed, subImage, bufferedImgGraphics);
 
         g.drawImage(bufferedImage, 0, 0, parent.winDi.width, parent.winDi.height, null);
+        applyBufferImage();
     }
 
     @Override
     public void released(MouseEvent e) {
         Graphics graphics = imagePanel.selectAreaImageCache.getGraphics();
         graphics.drawImage(imagePanel.selectAreaImage, 0, 0, null);
-        applyBufferImage();
     }
 
 }

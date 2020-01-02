@@ -9,8 +9,10 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
+import java.util.Optional;
 
 /**
+ *
  * @author lianbo.zhang
  * @date 2019/12/27
  */
@@ -68,7 +70,7 @@ public abstract class Painter implements MouseListener, MouseMotionListener {
     }
 
     public void applyBufferImage() {
-        imagePanel.appliedImage = bufferedImage;
+        Optional.ofNullable(bufferedImage).ifPresent(imagePanel::setAppliedImage);
     }
 
     @Override
