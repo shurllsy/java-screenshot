@@ -41,7 +41,7 @@ public class TextPainter extends Painter {
     }
 
     @Override
-    public void draw(Graphics g) {
+    public void drawImg(Graphics bufferImageGraphics) {
 //        g.drawImage(imagePanel.getAppliedImage(), 0, 0, parent.winDi.width, parent.winDi.height, null);
 //        applyBufferImage();
     }

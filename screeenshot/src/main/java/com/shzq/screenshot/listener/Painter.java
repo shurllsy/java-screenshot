@@ -1,5 +1,7 @@
 package com.shzq.screenshot.listener;
 
+import com.shzq.screenshot.bean.MyRectangle;
+import com.shzq.screenshot.utils.PainterUtil;
 import com.shzq.screenshot.view.ImageBufferPanel;
 import com.shzq.screenshot.view.ScreenFrame;
 import com.shzq.screenshot.view.ToolsBar;
@@ -12,6 +14,15 @@ import java.awt.image.BufferedImage;
 import java.util.Optional;
 
 /**
+ * 标注画笔
+ * <p>
+ * imagePanel.appliedImage为当前截图显示的图（带scale）
+ * 每个Painter标注之前先复制到bufferImage，painter操作bufferImage，最终将bufferImage绘到panel
+ * draw之前先用appliedImage的数据覆盖bufferImage，用来擦除轨迹，显示最新结果
+ * <p>
+ * 其他标注类（矩形、直线）：
+ * .标注先画到selectAreaImage（selectAreaImageCache保存画之前的图数据，用来擦除轨迹，显示最新结果）
+ * .selectAreaImage填充到bufferImage
  *
  * @author lianbo.zhang
  * @date 2019/12/27
@@ -22,7 +33,7 @@ public abstract class Painter implements MouseListener, MouseMotionListener {
     protected ImageBufferPanel imagePanel;
     protected ToolsBar tools;
 
-    protected BufferedImage bufferedImage;
+    protected BufferedImage bufferImage;
 
     public Painter(ScreenFrame parent, ToolsBar tools) {
         this.parent = parent;
@@ -30,7 +41,33 @@ public abstract class Painter implements MouseListener, MouseMotionListener {
         this.tools = tools;
     }
 
-    public abstract void draw(Graphics g);
+    public final void draw(Graphics g) {
+        // 选择的区域矩形框
+        MyRectangle selectedRectangle = imagePanel.getSelectedRectangle();
+
+        int selectWidth = selectedRectangle.getDimension().width;
+        int selectHeight = selectedRectangle.getDimension().height;
+
+        //重置缓存
+        BufferedImage ipImg = imagePanel.getAppliedImage();
+        bufferImage = PainterUtil.createCompatibleImage(ipImg.getWidth(), ipImg.getHeight(), ipImg.getType());
+        Graphics bufferImageGraphics = bufferImage.getGraphics();
+        bufferImageGraphics.drawImage(ipImg, 0, 0, null);
+        bufferImageGraphics.setColor(Color.decode("#1EA4FF"));
+
+        this.drawImg(bufferImageGraphics);
+
+        if (selectWidth > 0 && selectHeight > 0) {
+            // 绘制画框的边线
+            PainterUtil.drawRectangle(imagePanel.getSelectedRectangle(), bufferImageGraphics);
+        }
+
+        // 子类实现
+
+        g.drawImage(bufferImage, 0, 0, parent.winDi.width, parent.winDi.height, null);
+    }
+
+    protected abstract void drawImg(Graphics bufferImageGraphics);
 
     /**
      * 公共，双击保存
@@ -70,7 +107,7 @@ public abstract class Painter implements MouseListener, MouseMotionListener {
     }
 
     public void applyBufferImage() {
-        Optional.ofNullable(bufferedImage).ifPresent(imagePanel::setAppliedImage);
+        Optional.ofNullable(bufferImage).ifPresent(imagePanel::setAppliedImage);
     }
 
     @Override

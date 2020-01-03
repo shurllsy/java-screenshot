@@ -41,11 +41,7 @@ public class LinePainter extends Painter {
     }
 
     @Override
-    public void draw(Graphics g) {
-        BufferedImage ipImg = imagePanel.getAppliedImage();
-        bufferedImage = PainterUtil.createCompatibleImage(ipImg.getWidth(), ipImg.getHeight(), ipImg.getType());
-        Graphics bufferedImgGraphics = bufferedImage.getGraphics();
-        bufferedImgGraphics.drawImage(ipImg, 0, 0, null);
+    public void drawImg(Graphics bufferImageGraphics) {
 
         BufferedImage selectAreaImage = imagePanel.selectAreaImage;
         Graphics selectAreaGraphics = selectAreaImage.createGraphics();
@@ -54,16 +50,9 @@ public class LinePainter extends Painter {
         selectAreaGraphics.setColor(Color.red);
         PainterUtil.drawLine(pressedPoint, draggedPoint, selectAreaGraphics);
 
-        // 防止覆盖左和上边线，裁剪一个像素
         MyRectangle selectedRectangle = imagePanel.getSelectedRectangle();
-        MyRectangle fixed = new MyRectangle(selectedRectangle);
-        fixed.incrementStartX(1);
-        fixed.incrementStartY(1);
-        BufferedImage subImage = selectAreaImage.getSubimage(1, 1, selectAreaImage.getWidth() - 1, selectAreaImage.getHeight() - 1);
+        PainterUtil.drawImage(selectedRectangle, selectAreaImage, bufferImageGraphics);
 
-        PainterUtil.drawImage(fixed, subImage, bufferedImgGraphics);
-
-        g.drawImage(bufferedImage, 0, 0, parent.winDi.width, parent.winDi.height, null);
         applyBufferImage();
     }
 

@@ -52,7 +52,7 @@ public class DefaultPainter extends Painter {
     private void initLayer() {
         // 带阴影的图层
         RescaleOp rescaleOp = new RescaleOp(0.6f, 0, null);
-        bufferedImage = rescaleOp.filter(imagePanel.image, null);
+        bufferImage = rescaleOp.filter(imagePanel.image, null);
     }
 
     @Override
@@ -103,122 +103,66 @@ public class DefaultPainter extends Painter {
 
     @Override
     public void dragged(MouseEvent e) {
-        MyRectangle outRectangle = imagePanel.getSelectedRectangle();
-        int x = e.getX();
-        int y = e.getY();
+        MyRectangle selectedRectangle = imagePanel.getSelectedRectangle();
         // 鼠标在X轴拖动距离，往右为正，往左为负
-        int movedX = x - pressedPoint.x;
+        int movedX = e.getX() - pressedPoint.x;
         // 鼠标在Y轴拖动的距离，往下为正，往上为负
-        int movedY = y - pressedPoint.y;
+        int movedY = e.getY() - pressedPoint.y;
         if (current == States.MOVE) {
-
-            //控制选框只能在屏幕范围内拖动，并且保持大小不异常改变
-            int tmpStartX = outRectangle.getStartX() + movedX;
-            int tmpStartY = outRectangle.getStartY() + movedY;
-            int tmpEndX = outRectangle.getEndX() + movedX;
-            int tmpEndY = outRectangle.getEndY() + movedY;
-
-            // ww = windowWidth， wh = windowHeight
-            int ww = parent.winDi.width;
-            int wh = parent.winDi.height;
-            if (tmpStartX < 0) {
-                tmpEndX += Math.abs(tmpStartX);
-                tmpStartX = 0;
-            }
-            if (tmpStartY < 0) {
-                tmpEndY += Math.abs(tmpStartY);
-                tmpStartY = 0;
-            }
-            if (tmpEndX > ww) {
-                tmpStartX -= (tmpEndX - ww);
-                tmpEndX = ww;
-            }
-            if (tmpEndY > wh) {
-                tmpStartY -= (tmpEndY - wh);
-                tmpEndY = wh;
-            }
-
-            outRectangle.setStartX(tmpStartX);
-            outRectangle.setEndX(tmpEndX);
-            outRectangle.setStartY(tmpStartY);
-            outRectangle.setEndY(tmpEndY);
-
-            pressedPoint.setLocation(e.getPoint());
-
+            moveSelectedRectangle(e.getPoint());
         } else if (current == States.EAST || current == States.WEST) {
             if (currentX == START_X) {
-                outRectangle.incrementStartX(movedX);
+                selectedRectangle.incrementStartX(movedX);
             } else {
-                outRectangle.incrementEndX(movedX);
+                selectedRectangle.incrementEndX(movedX);
             }
-            pressedPoint.x = x;
+            pressedPoint.x = e.getX();
         } else if (current == States.NORTH || current == States.SOUTH) {
             if (currentY == START_Y) {
-                outRectangle.incrementStartY(movedY);
+                selectedRectangle.incrementStartY(movedY);
             } else {
-                outRectangle.incrementEndY(movedY);
+                selectedRectangle.incrementEndY(movedY);
             }
-            pressedPoint.y = y;
+            pressedPoint.y = e.getY();
         } else if (current == States.NORTH_WEST || current == States.NORTH_EAST ||
                 current == States.SOUTH_EAST || current == States.SOUTH_WEST) {
             if (currentY == START_Y) {
-                outRectangle.incrementStartY(movedY);
+                selectedRectangle.incrementStartY(movedY);
             } else {
-                outRectangle.incrementEndY(movedY);
+                selectedRectangle.incrementEndY(movedY);
             }
             if (currentX == START_X) {
-                outRectangle.incrementStartX(movedX);
+                selectedRectangle.incrementStartX(movedX);
             } else {
-                outRectangle.incrementEndX(movedX);
+                selectedRectangle.incrementEndX(movedX);
             }
             pressedPoint.setLocation(e.getPoint());
         } else {
-            outRectangle.reset(pressedPoint.x, pressedPoint.y, e.getX(), e.getY());
+            selectedRectangle.reset(pressedPoint.x, pressedPoint.y, e.getX(), e.getY());
         }
+        calcRec(selectedRectangle);
 
+        imagePanel.select = selectedRectangle.toRectangle();
         imagePanel.repaint();
     }
 
-    public void draw(Graphics g) {
+    public void drawImg(Graphics bufferImageGraphics) {
+        // 选择的区域矩形框
         MyRectangle selectedRectangle = imagePanel.getSelectedRectangle();
-        Dimension outRectangleDimension = selectedRectangle.getDimension();
-        int startX = selectedRectangle.getStartX();
-        int startY = selectedRectangle.getStartY();
-        int endX = selectedRectangle.getEndX();
-        int endY = selectedRectangle.getEndY();
-        int selectWidth = outRectangleDimension.width;
-        int selectHeight = outRectangleDimension.height;
 
-        BufferedImage ipImg = imagePanel.getAppliedImage();
-        bufferedImage = PainterUtil.createCompatibleImage(ipImg.getWidth(), ipImg.getHeight(), ipImg.getType());
+        int selectWidth = selectedRectangle.getDimension().width;
+        int selectHeight = selectedRectangle.getDimension().height;
+        //画框x、y轴中点
+        int midpointX = selectedRectangle.getStartX() + selectWidth / 2;
+        int midpointY = selectedRectangle.getStartY() + selectHeight / 2;
 
-        Graphics bufferedImgGraphics = bufferedImage.getGraphics();
-        bufferedImgGraphics.drawImage(ipImg, 0, 0, null);
-        bufferedImgGraphics.setColor(Color.decode("#1EA4FF"));
         if (selectWidth > 0 && selectHeight > 0) {
             // 画框内取消阴影效果
-            restoreRescale(bufferedImgGraphics, selectedRectangle);
-            // 绘制画框的边线
-            PainterUtil.drawRectangle(imagePanel.getSelectedRectangle(), bufferedImgGraphics);
+            restoreRescale(bufferImageGraphics, selectedRectangle);
         }
-        imagePanel.select = selectedRectangle.toRectangle();
-
-        //画框x、y轴中点
-        int midpointX = startX + selectWidth / 2;
-        int midpointY = startY + selectHeight / 2;
 
         // 绘制画框边上的八个改变大小的红方块
-        drawEditBlockOnLine(bufferedImgGraphics, midpointX, midpointY);
-        g.drawImage(bufferedImage, 0, 0, parent.winDi.width, parent.winDi.height, null);
-        // 计算八个编辑点的区域坐标，并保存至rec，用于编辑大小时 识别是哪个点，以便调整大小计算
-        rec[0] = new Rectangle(startX - 5, startY - 5, 10, 10);
-        rec[1] = new Rectangle(midpointX - 5, startY - 5, 10, 10);
-        rec[2] = new Rectangle(endX - 5, startY - 5, 10, 10);
-        rec[3] = new Rectangle(endX - 5, midpointY - 5, 10, 10);
-        rec[4] = new Rectangle(endX, endY - 5, 10, 10);
-        rec[5] = new Rectangle(midpointX - 5, endY - 5, 10, 10);
-        rec[6] = new Rectangle(startX - 5, endY - 5, 10, 10);
-        rec[7] = new Rectangle(startX - 5, midpointY - 5, 10, 10);
+        drawEditBlockOnLine(bufferImageGraphics, midpointX, midpointY);
     }
 
     //特意定义一个方法处理鼠标移动,是为了每次都能初始化一下所要选择的地区
@@ -289,7 +233,7 @@ public class DefaultPainter extends Painter {
      *
      * @param g 截图区域的Graphics
      */
-    public void restoreRescale(Graphics g, MyRectangle rectangle) {
+    private void restoreRescale(Graphics g, MyRectangle rectangle) {
         int startX = rectangle.getStartX();
         int startY = rectangle.getStartY();
         Dimension dimension = rectangle.getDimension();
@@ -306,7 +250,7 @@ public class DefaultPainter extends Painter {
      * @param midpointX x中点
      * @param midpointY y中点
      */
-    public void drawEditBlockOnLine(Graphics g, int midpointX, int midpointY) {
+    private void drawEditBlockOnLine(Graphics g, int midpointX, int midpointY) {
         int startX = imagePanel.getSelectedRectangle().getStartX();
         int startY = imagePanel.getSelectedRectangle().getStartY();
         int endX = imagePanel.getSelectedRectangle().getEndX();
@@ -319,6 +263,74 @@ public class DefaultPainter extends Painter {
         g.fillRect(startX - 2, endY - 2, 5, 5);
         g.fillRect(endX - 2, startY - 2, 5, 5);
         g.fillRect(endX - 2, endY - 2, 5, 5);
+    }
+
+    private void moveSelectedRectangle(Point eventPoint) {
+        //控制选框只能在屏幕范围内拖动，并且保持大小不异常改变
+        MyRectangle outRectangle = imagePanel.getSelectedRectangle();
+        // 鼠标在X轴拖动距离，往右为正，往左为负
+        int movedX = eventPoint.x - pressedPoint.x;
+        // 鼠标在Y轴拖动的距离，往下为正，往上为负
+        int movedY = eventPoint.y - pressedPoint.y;
+        int tmpStartX = outRectangle.getStartX() + movedX;
+        int tmpStartY = outRectangle.getStartY() + movedY;
+        int tmpEndX = outRectangle.getEndX() + movedX;
+        int tmpEndY = outRectangle.getEndY() + movedY;
+
+        // ww = windowWidth， wh = windowHeight
+        int ww = parent.winDi.width;
+        int wh = parent.winDi.height;
+        if (tmpStartX < 0) {
+            tmpEndX += Math.abs(tmpStartX);
+            tmpStartX = 0;
+        }
+        if (tmpStartY < 0) {
+            tmpEndY += Math.abs(tmpStartY);
+            tmpStartY = 0;
+        }
+        if (tmpEndX > ww) {
+            tmpStartX -= (tmpEndX - ww);
+            tmpEndX = ww;
+        }
+        if (tmpEndY > wh) {
+            tmpStartY -= (tmpEndY - wh);
+            tmpEndY = wh;
+        }
+
+        outRectangle.setStartX(tmpStartX);
+        outRectangle.setEndX(tmpEndX);
+        outRectangle.setStartY(tmpStartY);
+        outRectangle.setEndY(tmpEndY);
+
+        pressedPoint.setLocation(eventPoint);
+    }
+
+    /**
+     * 计算八个改变大小拖动的
+     *
+     * @param selectedRectangle 选框矩形
+     */
+    private void calcRec(MyRectangle selectedRectangle) {
+        int startX = selectedRectangle.getStartX();
+        int startY = selectedRectangle.getStartY();
+        int endX = selectedRectangle.getEndX();
+        int endY = selectedRectangle.getEndY();
+        Dimension selectedRectangleDimension = selectedRectangle.getDimension();
+        int selectWidth = selectedRectangleDimension.width;
+        int selectHeight = selectedRectangleDimension.height;
+        // 选择区域的大小
+        //画框x、y轴中点
+        int midpointX = startX + selectWidth / 2;
+        int midpointY = startY + selectHeight / 2;
+        // 计算八个编辑点的区域坐标，并保存至rec，用于编辑大小时 识别是哪个点，以便调整大小计算
+        rec[0] = new Rectangle(startX - 5, startY - 5, 10, 10);
+        rec[1] = new Rectangle(midpointX - 5, startY - 5, 10, 10);
+        rec[2] = new Rectangle(endX - 5, startY - 5, 10, 10);
+        rec[3] = new Rectangle(endX - 5, midpointY - 5, 10, 10);
+        rec[4] = new Rectangle(endX, endY - 5, 10, 10);
+        rec[5] = new Rectangle(midpointX - 5, endY - 5, 10, 10);
+        rec[6] = new Rectangle(startX - 5, endY - 5, 10, 10);
+        rec[7] = new Rectangle(startX - 5, midpointY - 5, 10, 10);
     }
 
 }
