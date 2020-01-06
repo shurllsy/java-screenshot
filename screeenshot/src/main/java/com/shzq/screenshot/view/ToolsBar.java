@@ -13,8 +13,6 @@ import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -27,7 +25,7 @@ import java.util.List;
  * @author lianbo.zhang
  * @date 2019/12/26
  */
-public class ToolsBar extends JDialog {
+public class ToolsBar extends JToolBar {
     // 和截图区域的间距
     private int margin = 5;
     private ScreenFrame parent;
@@ -35,6 +33,8 @@ public class ToolsBar extends JDialog {
     private Painter rectanglePainter;
     private Painter linePainter;
     private Painter textPainter;
+    private static final int width = 290;
+    private static final int height = 45;
 
     private List<ToolsButton> tools;
 
@@ -42,17 +42,16 @@ public class ToolsBar extends JDialog {
         // owner 用来保证工具条悬浮在截屏之上
         tools = new ArrayList<>();
         this.parent = parent;
-
-        setUndecorated(true);
-        setResizable(false);
-
+        setFloatable(false);
+        setSize(width, height);
+        setVisible(false);
         init();
-        pack();
     }
 
     public void moveTo(int x, int y) {
-        setLocation(x + margin, y + margin);
-        setVisible(true);
+        setBounds(x + margin, y + margin, 290, 45);
+        parent.getImagePanel().add(this);
+        this.setVisible(true);
     }
 
     public void moveTo(Point p) {
@@ -125,33 +124,10 @@ public class ToolsBar extends JDialog {
         panel.add(copyClipButton);
 
         this.add(panel);
-        this.setAlwaysOnTop(true);
 
-        MouseAdapter mouseAdapter = new MouseAdapter() {
-            Point press = new Point();
-
-            @Override
-            public void mousePressed(MouseEvent e) {
-                super.mousePressed(e);
-                press.setLocation(e.getPoint());
-            }
-
-            @Override
-            public void mouseDragged(MouseEvent e) {
-                super.mouseDragged(e);
-                // 鼠标在X轴拖动距离，往右为正，往左为负
-                int movedX = e.getX() - press.x;
-                // 鼠标在Y轴拖动的距离，往下为正，往上为负
-                int movedY = e.getY() - press.y;
-                Point location = ToolsBar.this.getLocation();
-                location.x += movedX;
-                location.y += movedY;
-                ToolsBar.this.setLocation(location);
-            }
-        };
-
-        this.addMouseListener(mouseAdapter);
-        this.addMouseMotionListener(mouseAdapter);
+        DragAdapter dragAdapter = new DragAdapter(ToolsBar.this);
+        this.addMouseListener(dragAdapter);
+        this.addMouseMotionListener(dragAdapter);
     }
 
     /**
@@ -164,7 +140,6 @@ public class ToolsBar extends JDialog {
         LocalDateTime now = LocalDateTime.now();
         String fileName = now.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"));
         parent.setAlwaysOnTop(false);
-        setAlwaysOnTop(false);
         JFileChooser jfc = new JFileChooser();
         jfc.setDialogTitle("保存");
         File filePath = FileSystemView.getFileSystemView().getHomeDirectory();

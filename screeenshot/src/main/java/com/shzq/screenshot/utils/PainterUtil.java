@@ -2,6 +2,7 @@ package com.shzq.screenshot.utils;
 
 import com.shzq.screenshot.bean.MyRectangle;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
@@ -50,6 +51,18 @@ public class PainterUtil {
         GraphicsDevice device = env.getDefaultScreenDevice();
         GraphicsConfiguration gc = device.getDefaultConfiguration();
         return gc.createCompatibleImage(w, h, type);
+    }
+
+    /***
+     * 将控件转换为BufferImage
+     * @param ta 目标控件
+     */
+    public static BufferedImage componentToImage(JComponent ta) {
+        BufferedImage img = new BufferedImage(ta.getWidth(), ta.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2d = img.createGraphics();
+        ta.printAll(g2d);
+        g2d.dispose();
+        return img;
     }
 
 }

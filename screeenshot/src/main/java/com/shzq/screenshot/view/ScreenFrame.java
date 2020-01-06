@@ -36,6 +36,8 @@ public class ScreenFrame extends JFrame {
         setSize(winDi);
         // 初始化工具条
         toolsBar = new ToolsBar(this);
+        imagePanel.setLayout(null);
+        imagePanel.add(toolsBar);
         setVisible(true);
         //防止窗口被状态栏挤下去
         setBounds(0, 0, winDi.width, winDi.height);
@@ -56,7 +58,6 @@ public class ScreenFrame extends JFrame {
     @Override
     public void dispose() {
         super.dispose();
-        toolsBar.dispose();
     }
 
     public BufferedImage getSelectedImg() {

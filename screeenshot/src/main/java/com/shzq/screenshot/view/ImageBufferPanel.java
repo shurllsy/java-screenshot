@@ -36,6 +36,7 @@ public class ImageBufferPanel extends JPanel {
         this.image = image;
         RescaleOp rescaleOp = new RescaleOp(0.6f, 0, null);
         appliedImage = rescaleOp.filter(image, null);
+        setLayout(null);
     }
 
     public void paintComponent(Graphics g) {
@@ -57,6 +58,7 @@ public class ImageBufferPanel extends JPanel {
             }
             selectedImg = image.getSubimage(select.x, select.y, wid, het);
         }
+//        parent.getToolsBar()
         return selectedImg;
     }
 

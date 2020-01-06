@@ -48,21 +48,20 @@ public abstract class Painter implements MouseListener, MouseMotionListener {
         int selectWidth = selectedRectangle.getDimension().width;
         int selectHeight = selectedRectangle.getDimension().height;
 
-        //重置缓存
+        //重置显示
         BufferedImage ipImg = imagePanel.getAppliedImage();
         bufferImage = PainterUtil.createCompatibleImage(ipImg.getWidth(), ipImg.getHeight(), ipImg.getType());
         Graphics bufferImageGraphics = bufferImage.getGraphics();
         bufferImageGraphics.drawImage(ipImg, 0, 0, null);
         bufferImageGraphics.setColor(Color.decode("#1EA4FF"));
 
+        // 子类实现
         this.drawImg(bufferImageGraphics);
 
         if (selectWidth > 0 && selectHeight > 0) {
             // 绘制画框的边线
             PainterUtil.drawRectangle(imagePanel.getSelectedRectangle(), bufferImageGraphics);
         }
-
-        // 子类实现
 
         g.drawImage(bufferImage, 0, 0, parent.winDi.width, parent.winDi.height, null);
     }
@@ -102,7 +101,6 @@ public abstract class Painter implements MouseListener, MouseMotionListener {
 
     @Override
     public final void mouseReleased(MouseEvent e) {
-        tools.setVisible(true);
         released(e);
     }
 
