@@ -6,6 +6,7 @@ import com.shzq.screenshot.view.ToolsBar;
 import javax.swing.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -92,7 +93,10 @@ public class ToolsButton extends JButton implements MouseListener {
      * 被取消激活，被取消选中时触发
      */
     protected void unactivated() {
-        addMouseListener(this);
+        boolean contains = Arrays.stream(getMouseListeners()).anyMatch(l -> l == this);
+        if (!contains) {
+            addMouseListener(this);
+        }
         mouseExited();
     }
 }

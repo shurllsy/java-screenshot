@@ -45,32 +45,32 @@ public class TextPainter extends Painter {
     @Override
     public void drawImg(Graphics bufferImageGraphics) {
         //将所有textPanel直接绘制到Cache， 初始化以
-        Graphics graphics = imagePanel.selectAreaImageCache.getGraphics();
-        graphics.drawImage(imagePanel.selectAreaImage, 0, 0, null);
-
-
         BufferedImage selectAreaImage = imagePanel.selectAreaImage;
-//        Graphics selectAreaGraphics = selectAreaImage.createGraphics();
-        graphics.drawImage(selectAreaImage, 0, 0, null);
-
-        graphics.setColor(Color.red);
-
+        Graphics selectAreaGraphics = selectAreaImage.createGraphics();
+        selectAreaGraphics.drawImage(imagePanel.selectAreaImageCache, 0, 0, null);
         MyRectangle selectedRectangle = imagePanel.getSelectedRectangle();
-        textPanes.stream().filter(ta -> !globalEditing).forEach(tp -> {
-            tp.setBorder(noneBorder);
-            int x = tp.getX() - selectedRectangle.getStartX();
-            int y = tp.getY() - selectedRectangle.getStartY();
-            BufferedImage txt = PainterUtil.componentToImage(tp);
-            if (tp.isEditing()) {
-                tp.setBorder(textBorder);
-            }
-            graphics.drawImage(txt, x, y, null);
-        });
+        drawAllText();
+        PainterUtil.drawImage(selectedRectangle, selectAreaImage, bufferImageGraphics);
+        selectAreaGraphics.dispose();
+    }
 
-        PainterUtil.drawImage(selectedRectangle, imagePanel.selectAreaImageCache, bufferImageGraphics);
-        applyBufferImage();
-
-        graphics.dispose();
+    private void drawAllText() {
+        BufferedImage selectAreaImage = imagePanel.selectAreaImage;
+        Graphics selectAreaGraphics = selectAreaImage.createGraphics();
+        MyRectangle selectedRectangle = imagePanel.getSelectedRectangle();
+        if (!globalEditing) {
+            textPanes.forEach(tp -> {
+                tp.setBorder(noneBorder);
+                int x = tp.getX() - selectedRectangle.getStartX();
+                int y = tp.getY() - selectedRectangle.getStartY();
+                BufferedImage txt = PainterUtil.componentToImage(tp);
+                if (tp.isEditing()) {
+                    tp.setBorder(textBorder);
+                }
+                selectAreaGraphics.drawImage(txt, x, y, null);
+            });
+        }
+        selectAreaGraphics.dispose();
     }
 
     @Override
@@ -93,14 +93,31 @@ public class TextPainter extends Painter {
     @Override
     public void inactivate() {
         super.inactivate();
+        globalEditing = false;
+        // 将所有输入框置为失去焦点状态
+        textPanes.stream()
+                .filter(TextPane::isEditing)
+                .findAny().ifPresent(TextPane::focusLost);
 
+        // 从面板移除控件
+        textPanes.forEach(imagePanel::remove);
+        // 将控件的界面显示样子画到imagePanel.selectAreaImage imageBuffer
+        // 不能直接调用imagePanel.repaint(); 因为它是异步的，可能textPanes.clear()之后才执行，导致文字全部消失
+        drawAllText();
+        // 清空textPanes，以便每个控件被回收
+        textPanes.clear();
+        // 将selectAreaImage应用到selectAreaImageCache
+        Graphics graphics = imagePanel.selectAreaImageCache.getGraphics();
+        graphics.drawImage(imagePanel.selectAreaImage, 0, 0, null);
+        graphics.dispose();
+        // 直接调用focusLost和drawAllText 文字的边框不会消失，需要重绘。
+        imagePanel.repaint();
     }
 
     private void deleteInput(JTextPane textPane) {
         imagePanel.remove(textPane);
         globalEditing = false;
         textPanes.removeIf(tp -> tp == textPane);
-        System.out.println("tas.size() = " + textPanes.size());
         imagePanel.repaint();
     }
 
@@ -153,15 +170,18 @@ public class TextPainter extends Painter {
             @Override
             public void focusLost(FocusEvent e) {
                 super.focusLost(e);
-                editing = false;
-                String text = getText();
-                globalEditing = false;
-                if ("".equals(text)) {
-                    TextPainter.this.deleteInput(jp);
-                } else {
-                    jp.setBorder(noneBorder);
-                }
+                TextPane.this.focusLost();
+            }
+        }
 
+        public void focusLost() {
+            editing = false;
+            String text = getText();
+            globalEditing = false;
+            if ("".equals(text)) {
+                TextPainter.this.deleteInput(this);
+            } else {
+                this.setBorder(noneBorder);
             }
         }
 
@@ -169,6 +189,20 @@ public class TextPainter extends Painter {
             return editing;
         }
 
+        @Override
+        public void print(Graphics g) {
+            // 光标颜色
+            setCaretColor(new Color(0, 0, 0, 0));
+//            setBorder(noneBorder);
+            try {
+                super.print(g);
+            } finally {
+                setCaretColor(Color.red);
+//                if (isEditing()) {
+//                    setBorder(textBorder);
+//                }
+            }
+        }
     }
 
 }
