@@ -44,13 +44,18 @@ public class TextPainter extends Painter {
 
     @Override
     public void drawImg(Graphics bufferImageGraphics) {
+        //将所有textPanel直接绘制到Cache， 初始化以
+        Graphics graphics = imagePanel.selectAreaImageCache.getGraphics();
+        graphics.drawImage(imagePanel.selectAreaImage, 0, 0, null);
+
+
         BufferedImage selectAreaImage = imagePanel.selectAreaImage;
+//        Graphics selectAreaGraphics = selectAreaImage.createGraphics();
+        graphics.drawImage(selectAreaImage, 0, 0, null);
+
+        graphics.setColor(Color.red);
+
         MyRectangle selectedRectangle = imagePanel.getSelectedRectangle();
-        Graphics selectAreaGraphics = selectAreaImage.createGraphics();
-        selectAreaGraphics.drawImage(imagePanel.selectAreaImageCache, 0, 0, null);
-
-        selectAreaGraphics.setColor(Color.red);
-
         textPanes.stream().filter(ta -> !globalEditing).forEach(tp -> {
             tp.setBorder(noneBorder);
             int x = tp.getX() - selectedRectangle.getStartX();
@@ -59,11 +64,13 @@ public class TextPainter extends Painter {
             if (tp.isEditing()) {
                 tp.setBorder(textBorder);
             }
-            selectAreaGraphics.drawImage(txt, x, y, null);
+            graphics.drawImage(txt, x, y, null);
         });
 
-        selectAreaGraphics.dispose();
-        PainterUtil.drawImage(selectedRectangle, selectAreaImage, bufferImageGraphics);
+        PainterUtil.drawImage(selectedRectangle, imagePanel.selectAreaImageCache, bufferImageGraphics);
+        applyBufferImage();
+
+        graphics.dispose();
     }
 
     @Override
@@ -81,6 +88,12 @@ public class TextPainter extends Painter {
             imagePanel.requestFocus();
             globalEditing = false;
         }
+    }
+
+    @Override
+    public void inactivate() {
+        super.inactivate();
+
     }
 
     private void deleteInput(JTextPane textPane) {
@@ -142,7 +155,7 @@ public class TextPainter extends Painter {
                 super.focusLost(e);
                 editing = false;
                 String text = getText();
-                applyBufferImage();
+                globalEditing = false;
                 if ("".equals(text)) {
                     TextPainter.this.deleteInput(jp);
                 } else {

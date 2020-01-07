@@ -147,6 +147,7 @@ public class DefaultPainter extends Painter {
     }
 
     public void drawImg(Graphics bufferImageGraphics) {
+        bufferImageGraphics.setColor(Color.decode("#1EA4FF"));
         // 选择的区域矩形框
         MyRectangle selectedRectangle = imagePanel.getSelectedRectangle();
 

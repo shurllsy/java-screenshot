@@ -38,6 +38,7 @@ public class RectanglePainter extends Painter {
         imagePanel.repaint();
     }
 
+    @Override
     public void drawImg(Graphics bufferImageGraphics) {
         BufferedImage selectAreaImage = imagePanel.selectAreaImage;
         Graphics selectAreaGraphics = selectAreaImage.createGraphics();
@@ -52,7 +53,9 @@ public class RectanglePainter extends Painter {
 
     @Override
     public void released(MouseEvent e) {
-        imagePanel.selectAreaImageCache.setData(imagePanel.selectAreaImage.getData());
+        Graphics graphics = imagePanel.selectAreaImageCache.getGraphics();
+        graphics.drawImage(imagePanel.selectAreaImage, 0, 0, null);
+        graphics.dispose();
         applyBufferImage();
     }
 }

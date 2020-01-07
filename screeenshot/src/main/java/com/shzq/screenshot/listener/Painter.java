@@ -29,6 +29,7 @@ import java.util.Optional;
  */
 public abstract class Painter implements MouseListener, MouseMotionListener {
 
+    private boolean activated;
     protected ScreenFrame parent;
     protected ImageBufferPanel imagePanel;
     protected ToolsBar tools;
@@ -53,16 +54,17 @@ public abstract class Painter implements MouseListener, MouseMotionListener {
         bufferImage = PainterUtil.createCompatibleImage(ipImg.getWidth(), ipImg.getHeight(), ipImg.getType());
         Graphics bufferImageGraphics = bufferImage.getGraphics();
         bufferImageGraphics.drawImage(ipImg, 0, 0, null);
-        bufferImageGraphics.setColor(Color.decode("#1EA4FF"));
-
         // 子类实现
         this.drawImg(bufferImageGraphics);
 
         if (selectWidth > 0 && selectHeight > 0) {
+            Graphics graphics = bufferImageGraphics.create();
+            graphics.setColor(Color.decode("#1EA4FF"));
             // 绘制画框的边线
-            PainterUtil.drawRectangle(imagePanel.getSelectedRectangle(), bufferImageGraphics);
+            PainterUtil.drawRectangle(imagePanel.getSelectedRectangle(), graphics);
+            graphics.dispose();
         }
-
+        bufferImageGraphics.dispose();
         g.drawImage(bufferImage, 0, 0, parent.winDi.width, parent.winDi.height, null);
     }
 
@@ -93,6 +95,7 @@ public abstract class Painter implements MouseListener, MouseMotionListener {
      */
     @Override
     public final void mousePressed(MouseEvent e) {
+        imagePanel.requestFocus();
         pressed(e);
         if (e.getButton() == MouseEvent.BUTTON3) {
             parent.dispose();
@@ -178,5 +181,23 @@ public abstract class Painter implements MouseListener, MouseMotionListener {
      * but no buttons have been pushed.
      */
     public void moved(MouseEvent e) {
+    }
+
+    /**
+     * 被激活，选中时触发
+     */
+    public void activate() {
+        this.activated = true;
+    }
+
+    /**
+     * 被取消激活，被取消选中时触发
+     */
+    public void inactivate() {
+        this.activated = false;
+    }
+
+    public boolean isActivated() {
+        return activated;
     }
 }

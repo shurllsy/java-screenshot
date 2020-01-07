@@ -59,6 +59,12 @@ public class ToolsBar extends JToolBar {
     }
 
     private void init() {
+        Painter nonePainter = new Painter(parent, this) {
+            @Override
+            protected void drawImg(Graphics bufferImageGraphics) {
+
+            }
+        };
         defaultPainter = new DefaultPainter(parent, this);
         rectanglePainter = new RectanglePainter(parent, this);
         linePainter = new LinePainter(parent, this);
@@ -69,20 +75,19 @@ public class ToolsBar extends JToolBar {
         JPanel panel = new Panel();
 
         // 矩形画框
-        ToolsButton selectButton = new ToolsButton(this, "select");
+        ToolsButton selectButton = new ToolsButton(this, "select", rectanglePainter);
         selectButton.addActionListener(e -> {
             parent.setPainter(rectanglePainter);
         });
 
         // 直线
-        ToolsButton lineButton = new ToolsButton(this, "line");
+        ToolsButton lineButton = new ToolsButton(this, "line", linePainter);
         lineButton.addActionListener(e -> {
             parent.setPainter(linePainter);
         });
 
-
         // 文字
-        ToolsButton textButton = new ToolsButton(this, "text");
+        ToolsButton textButton = new ToolsButton(this, "text", textPainter);
         textButton.addActionListener(e -> {
             parent.setPainter(textPainter);
         });
@@ -93,7 +98,7 @@ public class ToolsBar extends JToolBar {
         sep.setBackground(Color.decode("#8b999b"));
 
         // 保存下载
-        ToolsButton saveButton = new ToolsButton(this, "save");
+        ToolsButton saveButton = new ToolsButton(this, "save", nonePainter);
         saveButton.addActionListener(e -> {
             try {
                 save(parent.getSelectedImg());
@@ -103,13 +108,13 @@ public class ToolsBar extends JToolBar {
         });
 
         // 关闭
-        ToolsButton closeButton = new ToolsButton(this, "close");
+        ToolsButton closeButton = new ToolsButton(this, "close", nonePainter);
         closeButton.addActionListener(e -> {
             parent.dispose();
         });
 
         // 拷贝到剪贴板
-        ToolsButton copyClipButton = new ToolsButton(this, "finish");
+        ToolsButton copyClipButton = new ToolsButton(this, "finish", nonePainter);
         copyClipButton.addActionListener(e -> {
             copyToClipboard(parent.getSelectedImg());
             parent.dispose();

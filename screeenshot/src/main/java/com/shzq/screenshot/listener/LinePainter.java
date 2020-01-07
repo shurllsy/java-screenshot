@@ -42,7 +42,6 @@ public class LinePainter extends Painter {
 
     @Override
     public void drawImg(Graphics bufferImageGraphics) {
-
         BufferedImage selectAreaImage = imagePanel.selectAreaImage;
         Graphics selectAreaGraphics = selectAreaImage.createGraphics();
         selectAreaGraphics.drawImage(imagePanel.selectAreaImageCache, 0, 0, null);
@@ -53,6 +52,7 @@ public class LinePainter extends Painter {
         MyRectangle selectedRectangle = imagePanel.getSelectedRectangle();
         PainterUtil.drawImage(selectedRectangle, selectAreaImage, bufferImageGraphics);
 
+        selectAreaGraphics.dispose();
         applyBufferImage();
     }
 
@@ -60,6 +60,7 @@ public class LinePainter extends Painter {
     public void released(MouseEvent e) {
         Graphics graphics = imagePanel.selectAreaImageCache.getGraphics();
         graphics.drawImage(imagePanel.selectAreaImage, 0, 0, null);
+        graphics.dispose();
     }
 
 }

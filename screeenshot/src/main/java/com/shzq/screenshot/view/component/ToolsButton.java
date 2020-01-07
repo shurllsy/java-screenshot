@@ -1,5 +1,6 @@
 package com.shzq.screenshot.view.component;
 
+import com.shzq.screenshot.listener.Painter;
 import com.shzq.screenshot.view.ToolsBar;
 
 import javax.swing.*;
@@ -20,7 +21,10 @@ public class ToolsButton extends JButton implements MouseListener {
     private ImageIcon normalImg;
     private ImageIcon highlightImg;
 
-    public ToolsButton(ToolsBar toolsBar, String icon) {
+    private Painter painter;
+
+    public ToolsButton(ToolsBar toolsBar, String icon, Painter painter) {
+        this.painter = painter;
         this.toolsBar = toolsBar;
         this.addMouseListener(this);
         normalImg = new ImageIcon(getClass().getResource(ICON_PATH + icon + SUFFIX));
@@ -39,16 +43,16 @@ public class ToolsButton extends JButton implements MouseListener {
     public void mousePressed(MouseEvent e) {
         setIcon(highlightImg);
         setBorder(null);
-        this.removeMouseListener(this);
-        // 点击，清除其他按钮的点击状态
         List<ToolsButton> tools = toolsBar.getTools();
-        tools.stream()
-                .filter(tb -> tb != this)
-                .forEach(tb -> {
-                    tb.mouseExited();
-                    tb.removeMouseListener(tb);
-                    tb.addMouseListener(tb);
-                });
+        for (ToolsButton tool : tools) {
+            if (tool == this) {
+                tool.activated();
+                tool.painter.activate();
+            } else {
+                tool.unactivated();
+                tool.painter.inactivate();
+            }
+        }
     }
 
     @Override
@@ -74,5 +78,21 @@ public class ToolsButton extends JButton implements MouseListener {
     public void mouseExited() {
         setIcon(normalImg);
         setBorder(null);
+    }
+
+    /**
+     * 被激活，选中时触发
+     */
+    protected void activated() {
+        mouseEntered();
+        removeMouseListener(this);
+    }
+
+    /**
+     * 被取消激活，被取消选中时触发
+     */
+    protected void unactivated() {
+        addMouseListener(this);
+        mouseExited();
     }
 }
