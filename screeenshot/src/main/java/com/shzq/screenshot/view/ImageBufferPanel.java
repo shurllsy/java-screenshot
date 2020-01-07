@@ -28,7 +28,6 @@ public class ImageBufferPanel extends JPanel {
     public BufferedImage selectAreaImage;
     public BufferedImage selectAreaImageCache;
 
-
     public ImageBufferPanel(ScreenFrame parent, BufferedImage image) {
         super(true);
         this.parent = parent;
