@@ -99,13 +99,7 @@ public class ToolsBar extends JToolBar {
 
         // 保存下载
         ToolsButton saveButton = new ToolsButton(this, "save", nonePainter);
-        saveButton.addActionListener(e -> {
-            try {
-                save(parent.getSelectedImg());
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-        });
+        saveButton.addActionListener(e -> save(parent.getSelectedImg()));
 
         // 关闭
         ToolsButton closeButton = new ToolsButton(this, "close", nonePainter);
@@ -139,32 +133,39 @@ public class ToolsBar extends JToolBar {
      * 保存图片
      *
      * @param image 需要保存的图
-     * @throws IOException 错误
      */
-    public void save(final BufferedImage image) throws IOException {
-        LocalDateTime now = LocalDateTime.now();
-        String fileName = now.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"));
-        parent.setAlwaysOnTop(false);
-        JFileChooser jfc = new JFileChooser();
-        jfc.setDialogTitle("保存");
-        File filePath = FileSystemView.getFileSystemView().getHomeDirectory();
-        File defaultFile = new File(filePath + File.separator + fileName + ".png");
-        jfc.setSelectedFile(defaultFile);
-        int flag = jfc.showSaveDialog(parent);
-        if (flag == JFileChooser.APPROVE_OPTION) {
-            File file = jfc.getSelectedFile();
-            String path = file.getPath();
-            // 检查文件后缀，防止用户忘记输入后缀或者输入不正确的后缀
-            if (!(path.endsWith(".png") || path.endsWith(".PNG"))
-                    && !(path.endsWith(".jpg") || path.endsWith(".JPG"))
-                    && !(path.endsWith(".bmp") || path.endsWith(".BMP"))
-                    && !(path.endsWith(".jpeg") || path.endsWith(".JPEG"))
-                    && !(path.endsWith(".gif") || path.endsWith(".GIF"))) {
-                path += ".png";
+    public void save(final BufferedImage image) {
+        boolean result = true;
+        try {
+            LocalDateTime now = LocalDateTime.now();
+            String fileName = now.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"));
+            parent.setAlwaysOnTop(false);
+            JFileChooser jfc = new JFileChooser();
+            jfc.setDialogTitle("保存");
+            File filePath = FileSystemView.getFileSystemView().getHomeDirectory();
+            File defaultFile = new File(filePath + File.separator + fileName + ".png");
+            jfc.setSelectedFile(defaultFile);
+            int flag = jfc.showSaveDialog(parent);
+            if (flag == JFileChooser.APPROVE_OPTION) {
+                File file = jfc.getSelectedFile();
+                String path = file.getPath();
+                // 检查文件后缀，防止用户忘记输入后缀或者输入不正确的后缀
+                if (!(path.endsWith(".png") || path.endsWith(".PNG"))
+                        && !(path.endsWith(".jpg") || path.endsWith(".JPG"))
+                        && !(path.endsWith(".bmp") || path.endsWith(".BMP"))
+                        && !(path.endsWith(".jpeg") || path.endsWith(".JPEG"))
+                        && !(path.endsWith(".gif") || path.endsWith(".GIF"))) {
+                    path += ".png" ;
+                }
+                ImageIO.write(image, path.substring(path.lastIndexOf(".") + 1), new File(path));
             }
-            ImageIO.write(image, path.substring(path.lastIndexOf(".") + 1), new File(path));
+            parent.dispose();
+        } catch (SecurityException | HeadlessException | IOException e) {
+            e.printStackTrace();
+            result = false;
+        } finally {
+            parent.consume(result);
         }
-        parent.dispose();
 
     }
 
@@ -172,6 +173,7 @@ public class ToolsBar extends JToolBar {
      * 把当前的图片加入剪帖板
      */
     public void copyToClipboard(final BufferedImage image) {
+        boolean result = true;
         try {
             Transferable trans = new Transferable() {
                 public DataFlavor[] getTransferDataFlavors() {
@@ -189,8 +191,11 @@ public class ToolsBar extends JToolBar {
                 }
             };
             Toolkit.getDefaultToolkit().getSystemClipboard().setContents(trans, null);
-        } catch (Exception exe) {
-            exe.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+            result = false;
+        } finally {
+            parent.consume(result);
         }
     }
 

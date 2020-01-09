@@ -6,6 +6,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
+import java.util.function.Consumer;
 
 /**
  * @author lianbo.zhang
@@ -19,8 +20,11 @@ public class ScreenFrame extends JFrame {
 
     public Dimension winDi;
     private ToolsBar toolsBar;
+    private Consumer<Boolean>[] consumers;
 
-    public ScreenFrame() throws AWTException {
+    @SafeVarargs
+    public ScreenFrame(Consumer<Boolean>... consumer) throws AWTException {
+        consumers = consumer;
         setUndecorated(true);
         //设置背景透明 防止绘图太慢导致闪一下
         setBackground(new Color(0, 0, 0, 0));
@@ -74,5 +78,11 @@ public class ScreenFrame extends JFrame {
 
     public Painter getPainter() {
         return painter;
+    }
+
+    public void consume(boolean flag) {
+        Arrays.asList(consumers).forEach(consume -> {
+            consume.accept(flag);
+        });
     }
 }
