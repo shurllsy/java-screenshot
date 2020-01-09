@@ -85,6 +85,7 @@ public class ToolsButton extends JButton implements MouseListener {
      * 被激活，选中时触发
      */
     protected void activated() {
+        painter.activate();
         mouseEntered();
         removeMouseListener(this);
     }
@@ -93,6 +94,7 @@ public class ToolsButton extends JButton implements MouseListener {
      * 被取消激活，被取消选中时触发
      */
     protected void unactivated() {
+        painter.inactivate();
         boolean contains = Arrays.stream(getMouseListeners()).anyMatch(l -> l == this);
         if (!contains) {
             addMouseListener(this);

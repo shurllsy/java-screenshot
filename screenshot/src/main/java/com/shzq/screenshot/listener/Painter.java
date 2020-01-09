@@ -33,6 +33,7 @@ public abstract class Painter implements MouseListener, MouseMotionListener {
     protected ScreenFrame parent;
     protected ImageBufferPanel imagePanel;
     protected ToolsBar tools;
+    protected Cursor painterCursor = Cursor.getDefaultCursor();
 
     protected BufferedImage bufferImage;
 
@@ -188,6 +189,7 @@ public abstract class Painter implements MouseListener, MouseMotionListener {
      */
     public void activate() {
         this.activated = true;
+        imagePanel.setCursor(painterCursor);
     }
 
     /**

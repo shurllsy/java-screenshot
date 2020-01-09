@@ -19,8 +19,10 @@ public class RectanglePainter extends Painter {
     private MyRectangle rectangle = new MyRectangle();
     private Point pressedPoint = new Point();
 
+
     public RectanglePainter(ScreenFrame parent, ToolsBar tools) {
         super(parent, tools);
+        painterCursor = new Cursor(Cursor.CROSSHAIR_CURSOR);
     }
 
     @Override
@@ -58,4 +60,5 @@ public class RectanglePainter extends Painter {
         graphics.dispose();
         applyBufferImage();
     }
+
 }

@@ -40,6 +40,7 @@ public class TextPainter extends Painter {
 
     public TextPainter(ScreenFrame parent, ToolsBar tools) {
         super(parent, tools);
+        painterCursor = new Cursor(Cursor.TEXT_CURSOR);
     }
 
     @Override

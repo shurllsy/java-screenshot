@@ -17,7 +17,7 @@ public class ImageBufferPanel extends JPanel {
     // 选择的区域
     private MyRectangle selectedRectangle;
     //表示选中的区域
-    public Rectangle select = new Rectangle(0, 0, 0, 0);
+    private Rectangle select = new Rectangle(0, 0, 0, 0);
     private ScreenFrame parent;
 
     /**
@@ -63,6 +63,10 @@ public class ImageBufferPanel extends JPanel {
 
     public Rectangle getSelect() {
         return select;
+    }
+
+    public void setSelect(Rectangle select) {
+        this.select = select;
     }
 
     public MyRectangle getSelectedRectangle() {

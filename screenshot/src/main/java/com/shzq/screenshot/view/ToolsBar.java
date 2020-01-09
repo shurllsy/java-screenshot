@@ -45,6 +45,7 @@ public class ToolsBar extends JToolBar {
         setFloatable(false);
         setSize(width, height);
         setVisible(false);
+        setCursor(Cursor.getDefaultCursor());
         init();
     }
 

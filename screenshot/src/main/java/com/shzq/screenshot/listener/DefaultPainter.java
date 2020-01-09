@@ -142,7 +142,7 @@ public class DefaultPainter extends Painter {
         }
         calcRec(selectedRectangle);
 
-        imagePanel.select = selectedRectangle.toRectangle();
+        imagePanel.setSelect(selectedRectangle.toRectangle());
         imagePanel.repaint();
     }
 
