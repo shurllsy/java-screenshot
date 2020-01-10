@@ -1,6 +1,8 @@
 package com.shzq.screenshot.view;
 
 import com.shzq.screenshot.bean.MyRectangle;
+import com.shzq.screenshot.bean.Result;
+import com.shzq.screenshot.enums.ResultType;
 import com.shzq.screenshot.listener.Painter;
 import com.shzq.screenshot.listener.*;
 import com.shzq.screenshot.view.component.ToolsButton;
@@ -105,6 +107,7 @@ public class ToolsBar extends JToolBar {
         // 关闭
         ToolsButton closeButton = new ToolsButton(this, "close", nonePainter);
         closeButton.addActionListener(e -> {
+            cancel();
             parent.dispose();
         });
 
@@ -136,7 +139,7 @@ public class ToolsBar extends JToolBar {
      * @param image 需要保存的图
      */
     public void save(final BufferedImage image) {
-        boolean result = true;
+        boolean success = true;
         try {
             LocalDateTime now = LocalDateTime.now();
             String fileName = now.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"));
@@ -163,8 +166,9 @@ public class ToolsBar extends JToolBar {
             parent.dispose();
         } catch (SecurityException | HeadlessException | IOException e) {
             e.printStackTrace();
-            result = false;
+            success = false;
         } finally {
+            Result result = new Result(ResultType.save, success, image);
             parent.consume(result);
         }
 
@@ -174,7 +178,7 @@ public class ToolsBar extends JToolBar {
      * 把当前的图片加入剪帖板
      */
     public void copyToClipboard(final BufferedImage image) {
-        boolean result = true;
+        boolean success = true;
         try {
             Transferable trans = new Transferable() {
                 public DataFlavor[] getTransferDataFlavors() {
@@ -194,10 +198,16 @@ public class ToolsBar extends JToolBar {
             Toolkit.getDefaultToolkit().getSystemClipboard().setContents(trans, null);
         } catch (Exception e) {
             e.printStackTrace();
-            result = false;
+            success = false;
         } finally {
+            Result result = new Result(ResultType.copy, success, image);
             parent.consume(result);
         }
+    }
+
+    private void cancel() {
+        Result result = new Result(ResultType.cancel, true, null);
+        parent.consume(result);
     }
 
     // 判断工具栏边界,返回工具栏坐标

@@ -1,5 +1,6 @@
 package com.shzq.screenshot.view;
 
+import com.shzq.screenshot.bean.Result;
 import com.shzq.screenshot.listener.Painter;
 
 import javax.swing.*;
@@ -20,10 +21,10 @@ public class ScreenFrame extends JFrame {
 
     public Dimension winDi;
     private ToolsBar toolsBar;
-    private Consumer<Boolean>[] consumers;
+    private Consumer<Result>[] consumers;
 
     @SafeVarargs
-    public ScreenFrame(Consumer<Boolean>... consumer) throws AWTException {
+    public ScreenFrame(Consumer<Result>... consumer) throws AWTException {
         consumers = consumer;
         setUndecorated(true);
         //设置背景透明 防止绘图太慢导致闪一下
@@ -80,9 +81,9 @@ public class ScreenFrame extends JFrame {
         return painter;
     }
 
-    public void consume(boolean flag) {
+    public void consume(Result result) {
         Arrays.asList(consumers).forEach(consume -> {
-            consume.accept(flag);
+            consume.accept(result);
         });
     }
 }
