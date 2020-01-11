@@ -128,7 +128,7 @@ public class ToolsBar extends JToolBar {
 
         this.add(panel);
 
-        DragAdapter dragAdapter = new DragAdapter(ToolsBar.this);
+        DragAdapter dragAdapter = new DragAdapter();
         this.addMouseListener(dragAdapter);
         this.addMouseMotionListener(dragAdapter);
     }

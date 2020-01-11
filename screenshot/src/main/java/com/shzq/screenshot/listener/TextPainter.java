@@ -143,7 +143,7 @@ public class TextPainter extends Painter {
                 }
             });
             addFocusListener(new FocusListener(this));
-            DragAdapter dragAdapter = new DragAdapter(this);
+            DragAdapter dragAdapter = new DragAdapter();
             addMouseListener(dragAdapter);
             addMouseMotionListener(dragAdapter);
         }
