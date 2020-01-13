@@ -6,6 +6,7 @@ import com.shzq.screenshot.listener.Painter;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.awt.image.RescaleOp;
 import java.util.Arrays;
 import java.util.function.Consumer;
 
@@ -16,6 +17,8 @@ import java.util.function.Consumer;
 public class ScreenFrame extends JFrame {
 
     private ImageBufferPanel imagePanel;
+    // 选择区域图层
+    public SelectAreaPanel selectAreaPanel;
     // 画笔
     private Painter painter;
 
@@ -34,18 +37,37 @@ public class ScreenFrame extends JFrame {
         Robot ro = new Robot();
         Toolkit tk = Toolkit.getDefaultToolkit();
         winDi = tk.getScreenSize();
-        Rectangle rec = new Rectangle(0, 0, winDi.width, winDi.height);
-        BufferedImage initBufferImage = ro.createScreenCapture(rec);
-        imagePanel = new ImageBufferPanel(this, initBufferImage);
-        getContentPane().add(imagePanel, BorderLayout.CENTER);
         setSize(winDi);
-        // 初始化工具条
+        BufferedImage initBufferImage = ro.createScreenCapture(new Rectangle(winDi.width, winDi.height));
+
+        // 背景 灰度图
+        JLabel backgroundLabel = new JLabel();
+        RescaleOp rescaleOp = new RescaleOp(0.6f, 0, null);
+        BufferedImage rescaleImage = rescaleOp.filter(initBufferImage, null);
+        backgroundLabel.setIcon(new ImageIcon(rescaleImage));
+        backgroundLabel.setBounds(new Rectangle(winDi));
+
+        // 绘画面板
+        imagePanel = new ImageBufferPanel(this, initBufferImage);
+        imagePanel.setBounds(new Rectangle(winDi));
+        // 工具条
         toolsBar = new ToolsBar(this);
-        imagePanel.setLayout(null);
-        imagePanel.add(toolsBar);
+        // 选择区域
+        selectAreaPanel = new SelectAreaPanel(imagePanel);
+
+        JPanel panel = new JPanel(true);
+        panel.setLayout(null);
+        getContentPane().add(panel, BorderLayout.CENTER);
+
+        panel.add(toolsBar);
+        panel.add(selectAreaPanel);
+        panel.add(imagePanel);
+        panel.add(backgroundLabel);
+
+
         setVisible(true);
         //防止窗口被状态栏挤下去
-        setBounds(0, 0, winDi.width, winDi.height);
+        setLocation(0, 0);
     }
 
     public void setPainter(Painter painter) {
@@ -56,6 +78,7 @@ public class ScreenFrame extends JFrame {
 
         imagePanel.addMouseListener(painter);
         imagePanel.addMouseMotionListener(painter);
+
         painter.applyBufferImage();
         this.painter = painter;
     }
@@ -86,4 +109,5 @@ public class ScreenFrame extends JFrame {
             consume.accept(result);
         });
     }
+
 }

@@ -5,20 +5,20 @@ import com.shzq.screenshot.bean.MyRectangle;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.awt.image.RescaleOp;
 
 /**
  * @author lianbo.zhang
  * @date 2019/12/27
  */
 public class ImageBufferPanel extends JPanel {
+    private ScreenFrame parent;
     // 原始截图
     public BufferedImage image;
+
     // 选择的区域
-    private MyRectangle selectedRectangle;
+    private MyRectangle selectedRectangle = new MyRectangle();
     //表示选中的区域
     private Rectangle select = new Rectangle(0, 0, 0, 0);
-    private ScreenFrame parent;
 
     /**
      * 已经应用到面板的图（全屏panel中显示的，每个painter作图完毕会将缓存刷新到该变量）
@@ -29,18 +29,16 @@ public class ImageBufferPanel extends JPanel {
     public BufferedImage selectAreaImageCache;
 
     public ImageBufferPanel(ScreenFrame parent, BufferedImage image) {
-        super(true);
         this.parent = parent;
-        selectedRectangle = new MyRectangle();
         this.image = image;
-        RescaleOp rescaleOp = new RescaleOp(0.6f, 0, null);
-        appliedImage = rescaleOp.filter(image, null);
+
         setLayout(null);
+        setOpaque(false);
     }
 
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        parent.getPainter().draw(g);
+//        parent.getPainter().draw(g);
     }
 
     public BufferedImage getSelectedImg() {
@@ -57,7 +55,6 @@ public class ImageBufferPanel extends JPanel {
             }
             selectedImg = image.getSubimage(select.x, select.y, wid, het);
         }
-//        parent.getToolsBar()
         return selectedImg;
     }
 
@@ -79,5 +76,10 @@ public class ImageBufferPanel extends JPanel {
 
     public void setAppliedImage(BufferedImage appliedImage) {
         this.appliedImage = appliedImage;
+    }
+
+    @Override
+    public ScreenFrame getParent() {
+        return parent;
     }
 }

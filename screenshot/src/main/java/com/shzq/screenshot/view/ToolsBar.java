@@ -42,6 +42,7 @@ public class ToolsBar extends JToolBar {
 
     public ToolsBar(ScreenFrame parent) {
         // owner 用来保证工具条悬浮在截屏之上
+        setBounds(200, 200, width, height);
         tools = new ArrayList<>();
         this.parent = parent;
         setFloatable(false);
@@ -52,8 +53,7 @@ public class ToolsBar extends JToolBar {
     }
 
     public void moveTo(int x, int y) {
-        setBounds(x + margin, y + margin, 290, 45);
-        parent.getImagePanel().add(this);
+        setBounds(x + margin, y + margin, width, height);
         this.setVisible(true);
     }
 

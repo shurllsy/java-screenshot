@@ -54,7 +54,7 @@ public abstract class Painter implements MouseListener, MouseMotionListener {
         BufferedImage ipImg = imagePanel.getAppliedImage();
         bufferImage = PainterUtil.createCompatibleImage(ipImg.getWidth(), ipImg.getHeight(), ipImg.getType());
         Graphics bufferImageGraphics = bufferImage.getGraphics();
-        bufferImageGraphics.drawImage(ipImg, 0, 0, null);
+//        bufferImageGraphics.drawImage(ipImg, 0, 0, null);
         // 子类实现
         this.drawImg(bufferImageGraphics);
 
@@ -66,7 +66,7 @@ public abstract class Painter implements MouseListener, MouseMotionListener {
             graphics.dispose();
         }
         bufferImageGraphics.dispose();
-        g.drawImage(bufferImage, 0, 0, parent.winDi.width, parent.winDi.height, null);
+//        g.drawImage(bufferImage, 0, 0, parent.winDi.width, parent.winDi.height, null);
     }
 
     protected abstract void drawImg(Graphics bufferImageGraphics);

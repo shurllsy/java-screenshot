@@ -2,14 +2,12 @@ package com.shzq.screenshot.listener;
 
 import com.shzq.screenshot.bean.MyRectangle;
 import com.shzq.screenshot.enums.States;
-import com.shzq.screenshot.utils.PainterUtil;
 import com.shzq.screenshot.view.ScreenFrame;
 import com.shzq.screenshot.view.ToolsBar;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.awt.image.RescaleOp;
 
 /**
  * 区域截取
@@ -38,7 +36,6 @@ public class DefaultPainter extends Painter {
 
     public DefaultPainter(ScreenFrame parent, ToolsBar tools) {
         super(parent, tools);
-        initLayer();
         initRecs();
     }
 
@@ -49,17 +46,11 @@ public class DefaultPainter extends Painter {
         }
     }
 
-    private void initLayer() {
-        // 带阴影的图层
-        RescaleOp rescaleOp = new RescaleOp(0.6f, 0, null);
-        bufferImage = rescaleOp.filter(imagePanel.image, null);
-    }
-
     @Override
     public void pressed(MouseEvent e) {
         if (e.getButton() == MouseEvent.BUTTON1) {
             pressedPoint.setLocation(e.getX(), e.getY());
-            tools.setVisible(false);
+//            tools.setVisible(false);
         } else if (e.getButton() == MouseEvent.BUTTON3) {
             parent.dispose();
         }
@@ -96,74 +87,23 @@ public class DefaultPainter extends Painter {
     }
 
     @Override
-    public void moved(MouseEvent e) {
-        doMouseMoved(e);
-        initSelect(current);
-    }
-
-    @Override
     public void dragged(MouseEvent e) {
         MyRectangle selectedRectangle = imagePanel.getSelectedRectangle();
-        // 鼠标在X轴拖动距离，往右为正，往左为负
-        int movedX = e.getX() - pressedPoint.x;
-        // 鼠标在Y轴拖动的距离，往下为正，往上为负
-        int movedY = e.getY() - pressedPoint.y;
-        if (current == States.MOVE) {
-            moveSelectedRectangle(e.getPoint());
-        } else if (current == States.EAST || current == States.WEST) {
-            if (currentX == START_X) {
-                selectedRectangle.incrementStartX(movedX);
-            } else {
-                selectedRectangle.incrementEndX(movedX);
-            }
-            pressedPoint.x = e.getX();
-        } else if (current == States.NORTH || current == States.SOUTH) {
-            if (currentY == START_Y) {
-                selectedRectangle.incrementStartY(movedY);
-            } else {
-                selectedRectangle.incrementEndY(movedY);
-            }
-            pressedPoint.y = e.getY();
-        } else if (current == States.NORTH_WEST || current == States.NORTH_EAST ||
-                current == States.SOUTH_EAST || current == States.SOUTH_WEST) {
-            if (currentY == START_Y) {
-                selectedRectangle.incrementStartY(movedY);
-            } else {
-                selectedRectangle.incrementEndY(movedY);
-            }
-            if (currentX == START_X) {
-                selectedRectangle.incrementStartX(movedX);
-            } else {
-                selectedRectangle.incrementEndX(movedX);
-            }
-            pressedPoint.setLocation(e.getPoint());
-        } else {
-            selectedRectangle.reset(pressedPoint.x, pressedPoint.y, e.getX(), e.getY());
-        }
-        calcRec(selectedRectangle);
-
+        selectedRectangle.reset(pressedPoint.x, pressedPoint.y, e.getX(), e.getY());
         imagePanel.setSelect(selectedRectangle.toRectangle());
-        imagePanel.repaint();
+        parent.selectAreaPanel.setBounds(selectedRectangle.getStartX(), selectedRectangle.getStartY(),
+                selectedRectangle.getDimension().width, selectedRectangle.getDimension().height);
     }
 
     public void drawImg(Graphics bufferImageGraphics) {
-        bufferImageGraphics.setColor(Color.decode("#1EA4FF"));
         // 选择的区域矩形框
         MyRectangle selectedRectangle = imagePanel.getSelectedRectangle();
-
         int selectWidth = selectedRectangle.getDimension().width;
         int selectHeight = selectedRectangle.getDimension().height;
-        //画框x、y轴中点
-        int midpointX = selectedRectangle.getStartX() + selectWidth / 2;
-        int midpointY = selectedRectangle.getStartY() + selectHeight / 2;
 
         if (selectWidth > 0 && selectHeight > 0) {
-            // 画框内取消阴影效果
-            restoreRescale(bufferImageGraphics, selectedRectangle);
+            parent.selectAreaPanel.repaint();
         }
-
-        // 绘制画框边上的八个改变大小的红方块
-        drawEditBlockOnLine(bufferImageGraphics, midpointX, midpointY);
     }
 
     //特意定义一个方法处理鼠标移动,是为了每次都能初始化一下所要选择的地区
@@ -173,14 +113,6 @@ public class DefaultPainter extends Painter {
             imagePanel.setCursor(new Cursor(Cursor.MOVE_CURSOR));
             current = States.MOVE;
         } else {
-            States[] st = States.values();
-            for (int i = 0; i < rec.length; i++) {
-                if (rec[i].contains(e.getPoint())) {
-                    current = st[i];
-                    imagePanel.setCursor(st[i].getCursor());
-                    return;
-                }
-            }
             current = States.DEFAULT;
             imagePanel.setCursor(defaultCursor);
         }
@@ -226,22 +158,6 @@ public class DefaultPainter extends Painter {
                 currentY = 0;
                 break;
         }
-    }
-
-    /**
-     * 复原截图区域的蒙版效果
-     * 目前是通过在区域上覆盖原图相同区域实现的
-     *
-     * @param g 截图区域的Graphics
-     */
-    private void restoreRescale(Graphics g, MyRectangle rectangle) {
-        int startX = rectangle.getStartX();
-        int startY = rectangle.getStartY();
-        Dimension dimension = rectangle.getDimension();
-        imagePanel.selectAreaImage = imagePanel.image.getSubimage(startX, startY, dimension.width, dimension.height);
-        imagePanel.selectAreaImageCache = PainterUtil.createCompatibleImage(dimension.width, dimension.height, imagePanel.selectAreaImage.getType());
-        imagePanel.selectAreaImageCache.setData(imagePanel.selectAreaImage.getData());
-        g.drawImage(imagePanel.selectAreaImage, startX, startY, null);
     }
 
     /**
