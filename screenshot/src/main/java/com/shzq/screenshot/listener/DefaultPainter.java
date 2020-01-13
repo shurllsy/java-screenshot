@@ -240,7 +240,9 @@ public class DefaultPainter extends Painter {
         Dimension dimension = rectangle.getDimension();
         imagePanel.selectAreaImage = imagePanel.image.getSubimage(startX, startY, dimension.width, dimension.height);
         imagePanel.selectAreaImageCache = PainterUtil.createCompatibleImage(dimension.width, dimension.height, imagePanel.selectAreaImage.getType());
-        imagePanel.selectAreaImageCache.setData(imagePanel.selectAreaImage.getData());
+        Graphics selectAreaImageCacheGraphics = imagePanel.selectAreaImageCache.getGraphics();
+        selectAreaImageCacheGraphics.drawImage(imagePanel.selectAreaImage, 0, 0, null);
+        selectAreaImageCacheGraphics.dispose();
         g.drawImage(imagePanel.selectAreaImage, startX, startY, null);
     }
 
