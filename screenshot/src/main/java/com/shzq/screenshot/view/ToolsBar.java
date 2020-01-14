@@ -108,7 +108,6 @@ public class ToolsBar extends JToolBar {
         ToolsButton closeButton = new ToolsButton(this, "close", nonePainter);
         closeButton.addActionListener(e -> {
             cancel();
-            parent.dispose();
         });
 
         // 拷贝到剪贴板
@@ -205,9 +204,10 @@ public class ToolsBar extends JToolBar {
         }
     }
 
-    private void cancel() {
+    public void cancel() {
         Result result = new Result(ResultType.cancel, true, null);
         parent.consume(result);
+        parent.dispose();
     }
 
     // 判断工具栏边界,返回工具栏坐标

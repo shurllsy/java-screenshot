@@ -99,7 +99,7 @@ public abstract class Painter implements MouseListener, MouseMotionListener {
         imagePanel.requestFocus();
         pressed(e);
         if (e.getButton() == MouseEvent.BUTTON3) {
-            parent.dispose();
+            tools.cancel();
         }
     }
 
